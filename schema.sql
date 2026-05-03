@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users (
     free_credits  INTEGER NOT NULL DEFAULT 0,
     total_generated INTEGER NOT NULL DEFAULT 0,
     channel_subscribed BOOLEAN NOT NULL DEFAULT FALSE,
+    subscription_bonus_claimed BOOLEAN NOT NULL DEFAULT FALSE,
     paywall_shown_at   TIMESTAMPTZ,
     paywall_reminder_sent BOOLEAN NOT NULL DEFAULT FALSE,
     referrer_id BIGINT REFERENCES users(user_id),

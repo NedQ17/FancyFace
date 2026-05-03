@@ -96,6 +96,26 @@ async def set_channel_subscribed(user_id: int) -> None:
         )
 
 
+async def claim_subscription_bonus(user_id: int) -> bool:
+    """Atomically marks bonus as claimed. Returns True if this was the first claim."""
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        result = await conn.execute(
+            """UPDATE users SET subscription_bonus_claimed=TRUE
+               WHERE user_id=$1 AND subscription_bonus_claimed=FALSE""",
+            user_id,
+        )
+        return result == "UPDATE 1"
+
+
+async def set_channel_unsubscribed(user_id: int) -> None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE users SET channel_subscribed=FALSE WHERE user_id=$1", user_id
+        )
+
+
 async def mark_paywall_shown(user_id: int) -> None:
     pool = get_pool()
     async with pool.acquire() as conn:

@@ -211,6 +211,18 @@ def custom_details_kb(selected: set[str]) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+def custom_era_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Пятидесятые", callback_data="custom:era:50s")
+    builder.button(text="Семидесятые", callback_data="custom:era:70s")
+    builder.button(text="Девяностые",  callback_data="custom:era:90s")
+    builder.button(text="Нулевые",     callback_data="custom:era:00s")
+    builder.button(text="Пропустить",  callback_data="custom:era:skip")
+    builder.button(text="В меню",      callback_data="menu:back")
+    builder.adjust(2, 2, 1, 1)
+    return builder.as_markup()
+
+
 def custom_restrictions_kb(selected: set[str]) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     for key, label in RESTRICTIONS_OPTIONS:
@@ -269,7 +281,6 @@ def subscribe_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="📢 Подписаться на канал", url=CHANNEL_URL)
     builder.button(text="✅ Я подписался",          callback_data="subscribe:check")
-    builder.button(text="🏠 В меню",               callback_data="menu:back")
     builder.adjust(1)
     return builder.as_markup()
 

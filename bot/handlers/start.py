@@ -27,6 +27,11 @@ ALREADY_SUBSCRIBED_TEXT = (
     "Ниже — главное меню."
 )
 
+RESUBSCRIBED_TEXT = (
+    "Подписка подтверждена. Добро пожаловать обратно!\n\n"
+    "Ниже — главное меню."
+)
+
 SUBSCRIPTION_SUCCESS_TEXT = (
     "Отлично! Подписка подтверждена.\n"
     f"Тебе начислено <b>{FREE_CREDITS_FOR_SUBSCRIPTION} бесплатные генерации</b>.\n\n"
@@ -40,7 +45,7 @@ NOT_SUBSCRIBED_TEXT = (
 
 
 @router.message(CommandStart())
-async def cmd_start(message: Message, state: FSMContext, bot: Bot) -> None:
+async def cmd_start(message: Message, state: FSMContext) -> None:
     await state.clear()
 
     args = message.text.split(maxsplit=1)[1] if " " in message.text else ""
@@ -63,28 +68,8 @@ async def cmd_start(message: Message, state: FSMContext, bot: Bot) -> None:
     if user.get("is_blocked"):
         return
 
-    # Process referral if this is a new user (created just now, has referrer)
-    if referrer_id and not user.get("channel_subscribed"):
-        # referrer_id presence means user was just created; give referral bonus
-        try:
-            created = await db.record_referral(referrer_id, message.from_user.id)
-            if created:
-                await db.add_credits(referrer_id, paid=REFERRAL_CREDITS)
-                await db.add_credits(message.from_user.id, paid=REFERRAL_CREDITS)
-                try:
-                    await bot.send_message(
-                        referrer_id,
-                        f"🎉 По твоей ссылке зарегистрировался новый пользователь! "
-                        f"Тебе начислено <b>{REFERRAL_CREDITS} кредита</b>.",
-                        parse_mode="HTML",
-                    )
-                except Exception:
-                    pass
-        except Exception:
-            pass
-
-    # If already interacted before — show main menu right away
-    if user.get("total_generated", 0) > 0 or user.get("paid_credits", 0) > 0 or user.get("free_credits", 0) > 0:
+    # Returning user (already went through onboarding)
+    if user.get("subscription_bonus_claimed") or user.get("total_generated", 0) > 0 or user.get("paid_credits", 0) > 0:
         await message.answer(
             "Добро пожаловать! Выбери, что хочешь сделать.",
             reply_markup=main_menu_kb(),
@@ -130,9 +115,32 @@ async def check_subscription(callback: CallbackQuery, bot: Bot) -> None:
 
     logger.info(f"User {user_id} successfully subscribed, updating DB")
     await db.set_channel_subscribed(user_id)
-    await db.add_credits(user_id, free=FREE_CREDITS_FOR_SUBSCRIPTION)
 
+    bonus_claimed = await db.claim_subscription_bonus(user_id)
+    if bonus_claimed:
+        await db.add_credits(user_id, free=FREE_CREDITS_FOR_SUBSCRIPTION)
+
+        referrer_id = user.get("referrer_id")
+        if referrer_id:
+            try:
+                created = await db.record_referral(referrer_id, user_id)
+                if created:
+                    await db.add_credits(referrer_id, paid=REFERRAL_CREDITS)
+                    await db.add_credits(user_id, paid=REFERRAL_CREDITS)
+                    try:
+                        await bot.send_message(
+                            referrer_id,
+                            f"🎉 По твоей ссылке зарегистрировался новый пользователь! "
+                            f"Тебе начислено <b>{REFERRAL_CREDITS} кредита</b>.",
+                            parse_mode="HTML",
+                        )
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+    response_text = SUBSCRIPTION_SUCCESS_TEXT if bonus_claimed else RESUBSCRIBED_TEXT
     await callback.message.edit_text(
-        SUBSCRIPTION_SUCCESS_TEXT, parse_mode="HTML", reply_markup=main_menu_kb()
+        response_text, parse_mode="HTML", reply_markup=main_menu_kb()
     )
     await callback.answer()

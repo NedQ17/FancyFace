@@ -7,6 +7,8 @@ from bot.database.queries import (
     refund_credit,
     add_credits,
     set_channel_subscribed,
+    set_channel_unsubscribed,
+    claim_subscription_bonus,
     mark_paywall_shown,
     mark_paywall_reminder_sent,
     get_pending_paywall_reminders,
@@ -34,7 +36,8 @@ from bot.database.queries import (
 __all__ = [
     "get_or_create_user", "get_user", "get_total_credits",
     "consume_credit", "refund_credit", "add_credits",
-    "set_channel_subscribed", "mark_paywall_shown",
+    "set_channel_subscribed", "set_channel_unsubscribed", "claim_subscription_bonus",
+    "mark_paywall_shown",
     "mark_paywall_reminder_sent", "get_pending_paywall_reminders",
     "block_user", "unblock_user", "get_all_active_user_ids", "get_admin_stats",
     "get_styles", "get_style", "add_style", "ensure_default_styles",

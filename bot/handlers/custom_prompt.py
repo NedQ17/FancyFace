@@ -9,7 +9,7 @@ from bot.keyboards.builders import (
     custom_mode_kb, custom_gender_kb, custom_category_kb, custom_framing_kb,
     custom_render_kb, custom_mood_kb, custom_clothing_kb, custom_clothing_type_kb,
     custom_background_kb, custom_lighting_kb, custom_details_kb, custom_restrictions_kb,
-    custom_review_kb, after_custom_kb, paywall_kb, cancel_kb,
+    custom_era_kb, custom_review_kb, after_custom_kb, paywall_kb, cancel_kb,
     DETAILS_OPTIONS, RESTRICTIONS_OPTIONS,
 )
 from bot.services.generation import generate_portrait, upload_photo, GenerationError
@@ -17,7 +17,7 @@ from bot.states.flows import CustomFlow
 
 router = Router()
 
-TOTAL_STEPS = 10
+TOTAL_STEPS = 11
 
 PHOTO_TIPS = (
     "Почти готово! Осталось прислать своё фото.\n\n"
@@ -80,6 +80,13 @@ LIGHTING_MAP = {
     "soft":      ("Мягкий свет",      "soft diffused even studio illumination"),
     "backlit":   ("Контровой свет",   "dramatic backlight rim lighting, contre-jour"),
     "cinematic": ("Кинематографичный","cinematic moody directional lighting, dramatic shadows"),
+}
+ERA_MAP = {
+    "50s":  ("Пятидесятые", "1950s mid-century vintage era aesthetic"),
+    "70s":  ("Семидесятые", "1970s retro groovy era aesthetic"),
+    "90s":  ("Девяностые",  "1990s nostalgia era aesthetic"),
+    "00s":  ("Нулевые",     "early 2000s Y2K millennium era aesthetic"),
+    "skip": ("—",           ""),
 }
 DETAILS_LABEL_MAP = {o[0]: o[1] for o in DETAILS_OPTIONS}
 DETAILS_PROMPT_MAP = {
@@ -146,6 +153,10 @@ def _assemble_prompt(data: dict) -> str:
     if restriction_prompts:
         parts.append(", ".join(restriction_prompts))
 
+    era_prompt = ERA_MAP.get(data.get("era", "skip"), ("", ""))[1]
+    if era_prompt:
+        parts.append(era_prompt)
+
     parts.append("photorealistic, high quality, detailed")
     return ", ".join(p for p in parts if p)
 
@@ -189,6 +200,10 @@ def _describe_settings(data: dict) -> str:
     if restrictions:
         r_labels = [RESTRICTIONS_LABEL_MAP.get(r, r) for r in restrictions]
         lines.append(f"Ограничения: {', '.join(r_labels)}")
+
+    era_label = ERA_MAP.get(data.get("era", "skip"), ("—",))[0]
+    if era_label != "—":
+        lines.append(f"Эпоха: {era_label}")
 
     return "\n".join(lines)
 
@@ -477,7 +492,7 @@ async def _go_to_restrictions(callback: CallbackQuery, state: FSMContext) -> Non
 async def step10_restriction_toggle(callback: CallbackQuery, state: FSMContext) -> None:
     key = callback.data.split(":")[2]
     if key == "done":
-        await _show_review(callback, state)
+        await _go_to_era(callback, state)
         return
 
     data = await state.get_data()
@@ -491,6 +506,24 @@ async def step10_restriction_toggle(callback: CallbackQuery, state: FSMContext) 
         reply_markup=custom_restrictions_kb(selected)
     )
     await callback.answer()
+
+
+# ─── Step 11 — Era ───────────────────────────────────────────────────────────
+
+async def _go_to_era(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.set_state(CustomFlow.step11_era)
+    await callback.message.edit_text(
+        f"{_step(11)} — Стиль эпохи:", parse_mode="HTML",
+        reply_markup=custom_era_kb(),
+    )
+    await callback.answer()
+
+
+@router.callback_query(CustomFlow.step11_era, F.data.startswith("custom:era:"))
+async def step11_era(callback: CallbackQuery, state: FSMContext) -> None:
+    era = callback.data.split(":")[2]
+    await state.update_data(era=era)
+    await _show_review(callback, state)
 
 
 # ─── Review ───────────────────────────────────────────────────────────────────

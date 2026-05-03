@@ -24,6 +24,7 @@ class CustomFlow(StatesGroup):
     step9_details = State()
     step9_details_custom = State()
     step10_restrictions = State()
+    step11_era = State()
     waiting_direct_prompt = State()
     waiting_photo = State()
 
