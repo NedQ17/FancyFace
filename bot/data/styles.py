@@ -9,6 +9,13 @@ DEFAULT_STYLES: list[dict] = [
             "authoritative yet approachable presence, linkedin-quality headshot, "
             "sharp eyes with natural catchlights, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing at floor-to-ceiling office windows overlooking city skyline, arms crossed",
+            "sitting at a polished boardroom table, leaning forward slightly with hands clasped",
+            "standing in a modern office lobby, one hand in pocket",
+            "sitting in an executive leather chair, relaxed but composed posture",
+            "standing in front of a glass whiteboard covered in diagrams, hands behind back",
+        ],
         "sort_order": 0,
     },
     {
@@ -21,6 +28,13 @@ DEFAULT_STYLES: list[dict] = [
             "vogue or harper's bazaar aesthetic, strong graphic composition, "
             "high-key or split studio lighting, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing against a stark white studio seamless backdrop, one hand on hip",
+            "leaning against a raw concrete wall in an industrial loft, arms relaxed",
+            "sitting on the edge of a minimalist white cube, legs crossed, gaze intense",
+            "walking through an empty fashion show runway, mid-stride",
+            "standing under dramatic overhead studio spotlight, face tilted slightly upward",
+        ],
         "sort_order": 1,
     },
     {
@@ -33,6 +47,13 @@ DEFAULT_STYLES: list[dict] = [
             "storytelling composition suggesting a pivotal scene in a prestige drama, "
             "practical neon or tungsten lights as background elements, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing in a rain-soaked alley at night, neon signs reflecting on wet pavement below",
+            "sitting alone at a bar counter, hands wrapped around a glass, staring forward",
+            "leaning against a car door on an empty street at dusk, hands in jacket pockets",
+            "standing in a doorway backlit by warm interior light, face half in shadow",
+            "sitting on a fire escape staircase overlooking city lights below",
+        ],
         "sort_order": 2,
     },
     {
@@ -45,6 +66,13 @@ DEFAULT_STYLES: list[dict] = [
             "birch forest bokeh or ornate slavic interior as background, "
             "rich textural contrasts, golden hour warmth, slavic folk art spirit, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing in a birch forest clearing, golden light filtering through white trunks",
+            "sitting on a wooden bench outside a traditional log house, hands folded in lap",
+            "standing at the edge of a field of wildflowers, light breeze in the air",
+            "sitting at an ornate wooden table near a window with embroidered curtains",
+            "standing on a old wooden bridge over a forest stream, leaning on the railing",
+        ],
         "sort_order": 3,
     },
     {
@@ -55,10 +83,16 @@ DEFAULT_STYLES: list[dict] = [
             "oversized denim jacket or colorful windbreaker or sporty tracksuit, chunky sneakers or platform shoes, "
             "scrunchie or curtain bangs or flat-top hairstyle, "
             "fluorescent indoor lighting or tungsten warmth, "
-            "school photo or mall portrait studio backdrop feel, "
             "early 90s hip-hop or grunge or eurodance fashion energy, kodak gold film color rendering, "
             "photorealistic, high quality"
         ),
+        "scenes": [
+            "standing against school lockers in a fluorescent-lit hallway, arms crossed",
+            "sitting on concrete front steps of an apartment block, elbows on knees",
+            "leaning against a chain-link fence in an urban courtyard, one foot propped up",
+            "standing at a pay phone booth on a city sidewalk, receiver in hand",
+            "sitting on a low brick wall in a housing estate courtyard, looking ahead",
+        ],
         "sort_order": 4,
     },
     {
@@ -72,6 +106,13 @@ DEFAULT_STYLES: list[dict] = [
             "joyful celebratory atmosphere with vibrant party color palette of pink gold and confetti colors, "
             "photorealistic, high quality"
         ),
+        "scenes": [
+            "standing behind a birthday cake with lit candles on a decorated table, leaning forward",
+            "sitting at a party table surrounded by gifts and balloons, smiling",
+            "standing in a crowd of balloons, holding a glass of champagne",
+            "sitting on a decorated chair with foil balloons tied to it",
+            "standing at a party venue entrance under an arch of balloons",
+        ],
         "sort_order": 5,
     },
     {
@@ -83,9 +124,15 @@ DEFAULT_STYLES: list[dict] = [
             "cozy knitted sweater or elegant festive outfit, "
             "silver and gold ornaments and tinsel catching light, "
             "champagne bubbles or sparkler glow as accent light, "
-            "magical winter holiday mood with deep blue night sky or fireplace warmth, "
-            "twinkling light reflections in eyes, photorealistic, high quality"
+            "magical winter holiday mood, twinkling light reflections in eyes, photorealistic, high quality"
         ),
+        "scenes": [
+            "sitting cross-legged on the floor next to a decorated christmas tree, gift in hands",
+            "standing at a frost-covered window holding a mug of hot drink, looking outside",
+            "standing on a snowy city street under festive light garlands strung between buildings",
+            "sitting at a holiday dinner table with candles and decorated centerpiece",
+            "standing in a doorway of a warm lit house, snow falling behind, holding sparklers",
+        ],
         "sort_order": 6,
     },
     {
@@ -97,8 +144,15 @@ DEFAULT_STYLES: list[dict] = [
             "chunky wool coat or fur-lined jacket or thick knit scarf and hat, "
             "bare birch trees or snow-laden pine forest in soft-focus background, "
             "cold blue-white natural daylight creating crisp contrast with warm skin tones, "
-            "snowy city street or winter forest atmosphere, serene peaceful winter mood, photorealistic, high quality"
+            "serene peaceful winter mood, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing on a snow-covered forest path, hands in coat pockets, snowflakes falling",
+            "sitting on a snow-dusted wooden bench in a park, wrapped in a scarf",
+            "standing at the edge of a frozen lake, pine trees behind, looking across the ice",
+            "leaning against a snow-covered fence post in an open winter field",
+            "standing on a city street after snowfall, fresh snow on shoulders and hair",
+        ],
         "sort_order": 7,
     },
     {
@@ -108,11 +162,17 @@ DEFAULT_STYLES: list[dict] = [
             "epic high fantasy portrait, otherworldly magical atmosphere, "
             "elaborate period-inspired or mystical costume with intricate embroidery and gemstones, "
             "arcane glowing runes or soft bioluminescent light emanating from surroundings, "
-            "ancient enchanted forest or crumbling mystical ruins or starlit celestial sky background, "
             "dramatic volumetric god rays and rich jewel-tone color palette of deep violet and gold, "
             "the tangible presence of magic and ancient power in the air, "
             "high fantasy film production design quality, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing at the entrance of an ancient stone temple, glowing runes on the archway",
+            "sitting on a throne of twisted roots in an enchanted forest, staff in hand",
+            "standing on a cliff edge overlooking a mystical valley filled with floating islands",
+            "kneeling beside a glowing magical artifact on an altar, hands outstretched",
+            "standing in a grand library of an ancient tower, magical tomes floating around",
+        ],
         "sort_order": 8,
     },
     {
@@ -126,6 +186,13 @@ DEFAULT_STYLES: list[dict] = [
             "emotional psychological depth, timeless quality transcending any era, "
             "masterful tonal range from true blacks to clean whites, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing against a smooth white studio wall, one shoulder forward, direct gaze",
+            "sitting on a simple wooden chair in a bare room, hands on knees",
+            "leaning against a brick wall, arms folded, face in dramatic side light",
+            "standing in an empty hallway, light pouring from a window at the far end",
+            "sitting on a staircase, elbows on knees, looking upward",
+        ],
         "sort_order": 9,
     },
     {
@@ -137,8 +204,15 @@ DEFAULT_STYLES: list[dict] = [
             "salty sea breeze atmosphere with hair catching in wind, "
             "sun-kissed warm skin tones, casual linen or swimwear or beach cover-up, "
             "wet sand or surf foam catching golden reflections, "
-            "mediterranean or tropical beach vacation energy, relaxed effortless lifestyle, photorealistic, high quality"
+            "mediterranean or tropical beach vacation energy, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing at the shoreline, small waves washing over feet, facing the sunset",
+            "sitting on the sand with knees pulled up, ocean stretching behind",
+            "leaning against a weathered wooden beach pier post, wind in hair",
+            "walking along the waterline, footprints in wet sand behind",
+            "sitting on a beach towel, leaning back on hands, face tilted toward the sun",
+        ],
         "sort_order": 10,
     },
     {
@@ -148,11 +222,16 @@ DEFAULT_STYLES: list[dict] = [
             "authentic 1970s portrait, warm analog film palette dominated by yellows oranges and earthy browns, "
             "bell-bottom jeans or wide-lapel collar or floral print shirt or peasant blouse, "
             "kodachrome or fujifilm color rendering with slight warmth shift, "
-            "film grain and natural vignette, shag carpet or wood paneling or macrame wall hanging in background, "
-            "lava lamp glow or warm incandescent mushroom lamp lighting, "
-            "groovy disco era or free-spirited bohemian spirit, natural hair and sideburns celebrated, "
-            "photorealistic, high quality"
+            "film grain and natural vignette, groovy disco era or free-spirited bohemian spirit, "
+            "natural hair and sideburns celebrated, photorealistic, high quality"
         ),
+        "scenes": [
+            "sitting in a wicker peacock chair, legs crossed, one arm draped over the side",
+            "standing in a living room with shag carpet and wood paneling, hand on hip",
+            "leaning against a vintage car hood in a suburban driveway, arms crossed",
+            "sitting on a bean bag chair, lava lamp glowing on the shelf behind",
+            "standing on a disco dance floor with coloured light reflections, mid-pose",
+        ],
         "sort_order": 11,
     },
     {
@@ -163,10 +242,16 @@ DEFAULT_STYLES: list[dict] = [
             "opulent environment suggesting private penthouse or superyacht deck or grand hotel lobby, "
             "subtle designer accessories catching directional light, "
             "marble and polished brass and crystal as background architecture, "
-            "champagne flutes or fresh flowers as environmental details, "
             "sophisticated aspirational wealth aesthetic with understated elegance, "
             "cream ivory charcoal and gold color palette, editorial magazine quality, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing on a penthouse terrace overlooking a city at night, hands resting on glass railing",
+            "sitting in a deep leather armchair in a private members club, glass in hand",
+            "standing on the deck of a superyacht, ocean horizon behind, jacket over shoulder",
+            "sitting at a marble bar in a grand hotel, suit immaculate, looking ahead",
+            "standing at the top of a sweeping staircase in a luxury villa, hand on bannister",
+        ],
         "sort_order": 12,
     },
     {
@@ -180,6 +265,13 @@ DEFAULT_STYLES: list[dict] = [
             "commercial photography standard with flawless even illumination, "
             "clean polished appearance without clinical coldness, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing against a light gray seamless backdrop, relaxed arms at sides, direct gaze",
+            "sitting on a low black studio stool, hands on thighs, chin slightly down",
+            "standing with one hand in pocket, slight three-quarter body angle",
+            "sitting on the floor with legs crossed, leaning slightly forward",
+            "standing with arms folded, weight on one leg, natural relaxed stance",
+        ],
         "sort_order": 13,
     },
     {
@@ -193,6 +285,13 @@ DEFAULT_STYLES: list[dict] = [
             "annie leibovitz or cindy sherman conceptual tradition, "
             "unexpected composition breaking classical portrait rules, photorealistic, high quality"
         ),
+        "scenes": [
+            "standing in an art gallery surrounded by large abstract canvases, arms at sides",
+            "sitting on the floor of a studio space, paint-covered drop cloths around",
+            "leaning against a sculpture in a contemporary museum, casual and contemplative",
+            "standing in front of a large blank canvas, brush or palette in hand",
+            "sitting on a window ledge in an artist's loft, natural light flooding in",
+        ],
         "sort_order": 14,
     },
 ]

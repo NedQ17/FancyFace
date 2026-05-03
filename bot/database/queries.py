@@ -206,13 +206,13 @@ async def ensure_default_styles(default_styles: list[dict]) -> None:
         count = await conn.fetchval("SELECT COUNT(*) FROM styles")
         if count == 0:
             await conn.executemany(
-                "INSERT INTO styles (name, emoji, prompt, sort_order) VALUES ($1, $2, $3, $4)",
-                [(s["name"], s["emoji"], s["prompt"], s["sort_order"]) for s in default_styles],
+                "INSERT INTO styles (name, emoji, prompt, scenes, sort_order) VALUES ($1, $2, $3, $4, $5)",
+                [(s["name"], s["emoji"], s["prompt"], s.get("scenes", []), s["sort_order"]) for s in default_styles],
             )
         else:
             await conn.executemany(
-                "UPDATE styles SET prompt=$2, emoji=$3 WHERE name=$1",
-                [(s["name"], s["prompt"], s["emoji"]) for s in default_styles],
+                "UPDATE styles SET prompt=$2, emoji=$3, scenes=$4 WHERE name=$1",
+                [(s["name"], s["prompt"], s["emoji"], s.get("scenes", [])) for s in default_styles],
             )
 
 

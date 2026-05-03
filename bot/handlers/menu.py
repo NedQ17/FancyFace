@@ -1,4 +1,5 @@
 from aiogram import Router, F
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -20,6 +21,11 @@ async def show_main_menu(target: Message | CallbackQuery, state: FSMContext) -> 
         await target.answer()
     else:
         await target.answer(text, reply_markup=kb)
+
+
+@router.message(Command("menu"))
+async def cmd_menu(message: Message, state: FSMContext) -> None:
+    await show_main_menu(message, state)
 
 
 @router.callback_query(F.data == "menu:back")

@@ -1,4 +1,5 @@
 from aiogram import Router, F, Bot
+from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (
     CallbackQuery, Message, LabeledPrice, PreCheckoutQuery,
@@ -22,6 +23,14 @@ NO_PROVIDER_TEXT = (
 
 def _pkg_by_id(pkg_id: str) -> dict | None:
     return next((p for p in PACKAGES if p["id"] == pkg_id), None)
+
+
+@router.message(Command("pay"))
+async def cmd_pay(message: Message) -> None:
+    if not PAYMENT_PROVIDER_TOKEN:
+        await message.answer(NO_PROVIDER_TEXT)
+        return
+    await message.answer(PAYWALL_TEXT, parse_mode="HTML", reply_markup=paywall_kb())
 
 
 @router.callback_query(F.data == "menu:topup")

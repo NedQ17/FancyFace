@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import BotCommand
 
 from bot.config import BOT_TOKEN
 from bot.database.pool import init_pool, close_pool
@@ -52,6 +53,13 @@ async def main() -> None:
     dp.include_router(payment.router)
     dp.include_router(profile.router)
     dp.include_router(admin.router)
+
+    await bot.set_my_commands([
+        BotCommand(command="start",   description="Начать / главное меню"),
+        BotCommand(command="menu",    description="Главное меню"),
+        BotCommand(command="profile", description="Мой профиль и кредиты"),
+        BotCommand(command="pay",     description="Пополнить баланс"),
+    ])
 
     asyncio.create_task(_paywall_reminder_loop(bot))
 

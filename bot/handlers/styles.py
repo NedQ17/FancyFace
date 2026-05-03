@@ -2,15 +2,14 @@ import io
 import logging
 
 from aiogram import Router, F, Bot
-
-logger = logging.getLogger(__name__)
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message, BufferedInputFile
+from aiogram.types import CallbackQuery, Message, URLInputFile
 
 from bot import database as db
 from bot.keyboards.builders import styles_kb, after_style_kb, paywall_kb, cancel_kb
 from bot.services.generation import generate_portrait, upload_photo, GenerationError
-from bot.services.watermark import add_watermark
+
+logger = logging.getLogger(__name__)
 from bot.states.flows import StyleFlow
 
 router = Router()
@@ -120,7 +119,7 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
 
     try:
         face_url = await upload_photo(photo_bytes)
-        result_bytes = await generate_portrait(face_url, style["prompt"])
+        result_url = await generate_portrait(face_url, style["prompt"], style.get("scenes") or [])
     except GenerationError as exc:
         logger.error("Generation failed for user %s, style %s: %s", message.from_user.id, style_id, exc)
         await db.fail_generation(gen_id)
@@ -132,11 +131,8 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
         return
 
     was_free = credit_type == "free"
-    if was_free:
-        result_bytes = add_watermark(result_bytes)
-
     result_msg = await message.answer_photo(
-        BufferedInputFile(result_bytes, filename="result.jpg"),
+        URLInputFile(result_url, filename="result.jpg"),
         reply_markup=after_style_kb(style_id),
     )
     await status_msg.delete()

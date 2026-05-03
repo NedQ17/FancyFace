@@ -3,14 +3,13 @@ import io
 
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message, BufferedInputFile
+from aiogram.types import CallbackQuery, Message, URLInputFile
 
 from bot import database as db
 from bot.keyboards.builders import (
     sessions_kb, session_detail_kb, after_session_kb, paywall_kb, cancel_kb,
 )
 from bot.services.generation import generate_portrait, upload_photo, GenerationError
-from bot.services.watermark import add_watermark
 from bot.states.flows import SessionFlow
 
 router = Router()
@@ -148,7 +147,7 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
     for i, prompt in enumerate(prompts, 1):
         credit_type = await db.consume_credit(message.from_user.id)
         try:
-            result_bytes = await generate_portrait(face_url, prompt)
+            result_url = await generate_portrait(face_url, prompt)
         except GenerationError:
             await db.refund_credit(message.from_user.id, credit_type)
             any_failed = True
@@ -156,11 +155,8 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
             continue
 
         was_free = credit_type == "free"
-        if was_free:
-            result_bytes = add_watermark(result_bytes)
-
         result_msg = await message.answer_photo(
-            BufferedInputFile(result_bytes, filename=f"photo_{i}.jpg")
+            URLInputFile(result_url, filename=f"photo_{i}.jpg")
         )
         result_file_ids.append(result_msg.photo[-1].file_id)
 

@@ -8,12 +8,11 @@ from bot.data.styles import FIRST_PAGE_COUNT
 def main_menu_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="🎨 Выбрать стиль",  callback_data="menu:styles")
-    builder.button(text="📸 Фотосессия",     callback_data="menu:sessions")
     builder.button(text="✏️ Свой промпт",    callback_data="menu:custom")
     builder.button(text="💰 Мой баланс",     callback_data="menu:profile")
     builder.button(text="💳 Пополнить",      callback_data="menu:topup")
     builder.button(text="📢 Канал с идеями", url=CHANNEL_URL)
-    builder.adjust(1, 2, 2, 1)
+    builder.adjust(1, 1, 2, 1)
     return builder.as_markup()
 
 
@@ -73,71 +72,162 @@ def after_session_kb() -> InlineKeyboardMarkup:
 
 def custom_mode_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="🔧 Конструктор по шагам", callback_data="custom:builder")
+    builder.button(text="🔧 Конструктор по шагам",   callback_data="custom:builder")
     builder.button(text="✍️ Вставить готовый промпт", callback_data="custom:direct")
-    builder.button(text="← Меню", callback_data="menu:back")
+    builder.button(text="← Меню",                    callback_data="menu:back")
     builder.adjust(1)
-    return builder.as_markup()
-
-
-def custom_who_kb() -> InlineKeyboardMarkup:
-    builder = InlineKeyboardBuilder()
-    builder.button(text="👤 Один человек",         callback_data="custom:who:one")
-    builder.button(text="👥 Несколько взрослых",   callback_data="custom:who:group")
-    builder.button(text="👨‍👩‍👧 Взрослые и дети",    callback_data="custom:who:family")
-    builder.button(text="👶 Только дети",          callback_data="custom:who:kids")
-    builder.button(text="🏠 В меню",               callback_data="menu:back")
-    builder.adjust(2, 1)
     return builder.as_markup()
 
 
 def custom_gender_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="👩 Женщина",   callback_data="custom:gender:female")
-    builder.button(text="👨 Мужчина",   callback_data="custom:gender:male")
-    builder.button(text="⏭ Пропустить", callback_data="custom:gender:skip")
-    builder.button(text="🏠 В меню",    callback_data="menu:back")
+    builder.button(text="Женщина",    callback_data="custom:gender:female")
+    builder.button(text="Мужчина",    callback_data="custom:gender:male")
+    builder.button(text="Пропустить", callback_data="custom:gender:skip")
+    builder.button(text="В меню",     callback_data="menu:back")
     builder.adjust(2, 1, 1)
     return builder.as_markup()
 
 
-def custom_style_kb() -> InlineKeyboardMarkup:
+def custom_category_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="💼 Деловой",  callback_data="custom:style:business")
-    builder.button(text="👗 Модный",   callback_data="custom:style:fashion")
-    builder.button(text="🎨 Арт",      callback_data="custom:style:art")
-    builder.button(text="📷 Реализм",  callback_data="custom:style:realism")
-    builder.button(text="🧙 Фэнтези",  callback_data="custom:style:fantasy")
-    builder.button(text="🏠 В меню",   callback_data="menu:back")
-    builder.adjust(2, 1)
+    builder.button(text="Деловой",          callback_data="custom:category:business")
+    builder.button(text="Портрет",          callback_data="custom:category:portrait")
+    builder.button(text="Фотореализм",      callback_data="custom:category:photorealism")
+    builder.button(text="Лайфстайл",        callback_data="custom:category:lifestyle")
+    builder.button(text="Кинематографичный", callback_data="custom:category:cinematic")
+    builder.button(text="Арт стиль",        callback_data="custom:category:art")
+    builder.button(text="В меню",           callback_data="menu:back")
+    builder.adjust(2, 2, 2, 1)
     return builder.as_markup()
 
 
-def custom_location_kb() -> InlineKeyboardMarkup:
+def custom_framing_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="🏢 Офис",         callback_data="custom:loc:office")
-    builder.button(text="🌿 Природа",      callback_data="custom:loc:nature")
-    builder.button(text="🏙 Город",        callback_data="custom:loc:city")
-    builder.button(text="🎭 Студия",       callback_data="custom:loc:studio")
-    builder.button(text="✍️ Написать свой", callback_data="custom:loc:custom")
-    builder.button(text="🏠 В меню",       callback_data="menu:back")
-    builder.adjust(2, 1)
+    builder.button(text="Бюст (голова-плечи)", callback_data="custom:framing:bust")
+    builder.button(text="По пояс",             callback_data="custom:framing:waist")
+    builder.button(text="В полный рост",       callback_data="custom:framing:full")
+    builder.button(text="В меню",              callback_data="menu:back")
+    builder.adjust(1)
     return builder.as_markup()
 
 
-def custom_details_skip_kb() -> InlineKeyboardMarkup:
+def custom_render_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="⏭ Пропустить", callback_data="custom:details:skip")
-    builder.button(text="🏠 В меню",    callback_data="menu:back")
+    builder.button(text="Реализм",           callback_data="custom:render:realism")
+    builder.button(text="Лёгкая стилизация", callback_data="custom:render:stylized")
+    builder.button(text="Арт стиль",         callback_data="custom:render:art")
+    builder.button(text="В меню",            callback_data="menu:back")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def custom_mood_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Спокойное",   callback_data="custom:mood:calm")
+    builder.button(text="Довольное",   callback_data="custom:mood:pleased")
+    builder.button(text="Серьёзное",   callback_data="custom:mood:serious")
+    builder.button(text="Романтичное", callback_data="custom:mood:romantic")
+    builder.button(text="Деловое",     callback_data="custom:mood:business")
+    builder.button(text="В меню",      callback_data="menu:back")
+    builder.adjust(2, 2, 1, 1)
+    return builder.as_markup()
+
+
+def custom_clothing_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Оставить оригинальную одежду", callback_data="custom:clothing:keep")
+    builder.button(text="Заменить одежду",              callback_data="custom:clothing:replace")
+    builder.button(text="В меню",                       callback_data="menu:back")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def custom_clothing_type_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Кэжуал",          callback_data="custom:ctype:casual")
+    builder.button(text="Классическая",    callback_data="custom:ctype:classic")
+    builder.button(text="Бизнес",          callback_data="custom:ctype:business")
+    builder.button(text="Фестиваль",       callback_data="custom:ctype:festival")
+    builder.button(text="Историческая",    callback_data="custom:ctype:historical")
+    builder.button(text="Минимализм",      callback_data="custom:ctype:minimal")
+    builder.button(text="Описать самому",  callback_data="custom:ctype:custom")
+    builder.button(text="В меню",          callback_data="menu:back")
+    builder.adjust(2, 2, 2, 1, 1)
+    return builder.as_markup()
+
+
+def custom_background_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Студия",          callback_data="custom:bg:studio")
+    builder.button(text="Город",           callback_data="custom:bg:city")
+    builder.button(text="Природа",         callback_data="custom:bg:nature")
+    builder.button(text="Улица",           callback_data="custom:bg:street")
+    builder.button(text="Интерьер",        callback_data="custom:bg:interior")
+    builder.button(text="Размытый фон",    callback_data="custom:bg:blurred")
+    builder.button(text="Описать самому",  callback_data="custom:bg:custom")
+    builder.button(text="В меню",          callback_data="menu:back")
+    builder.adjust(2, 2, 2, 1, 1)
+    return builder.as_markup()
+
+
+def custom_lighting_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Естественный свет", callback_data="custom:light:natural")
+    builder.button(text="Мягкий свет",       callback_data="custom:light:soft")
+    builder.button(text="Контровой свет",    callback_data="custom:light:backlit")
+    builder.button(text="Кинематографичный", callback_data="custom:light:cinematic")
+    builder.button(text="В меню",            callback_data="menu:back")
+    builder.adjust(2, 2, 1)
+    return builder.as_markup()
+
+
+DETAILS_OPTIONS = [
+    ("candles", "Свечи"),
+    ("flowers", "Цветы"),
+    ("plants",  "Растения"),
+    ("fabrics", "Ткани/драпировки"),
+    ("minimal", "Минималистичный декор"),
+    ("custom",  "Описать самому"),
+]
+
+RESTRICTIONS_OPTIONS = [
+    ("no_pose",       "Не менять позу"),
+    ("no_expression", "Не менять выражение лица"),
+    ("no_hair",       "Не менять причёску"),
+    ("no_objects",    "Не добавлять объекты в руки"),
+]
+
+
+def custom_details_kb(selected: set[str]) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for key, label in DETAILS_OPTIONS:
+        prefix = "✅ " if key in selected else ""
+        builder.button(text=f"{prefix}{label}", callback_data=f"custom:detail:{key}")
+    next_label = "→ Далее" if selected - {"custom"} else "Пропустить"
+    builder.button(text=next_label, callback_data="custom:detail:done")
+    builder.button(text="В меню", callback_data="menu:back")
+    builder.adjust(2, 2, 1, 1, 1)
+    return builder.as_markup()
+
+
+def custom_restrictions_kb(selected: set[str]) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for key, label in RESTRICTIONS_OPTIONS:
+        prefix = "✅ " if key in selected else ""
+        builder.button(text=f"{prefix}{label}", callback_data=f"custom:restrict:{key}")
+    next_label = "→ Далее" if selected else "Пропустить"
+    builder.button(text=next_label, callback_data="custom:restrict:done")
+    builder.button(text="В меню", callback_data="menu:back")
     builder.adjust(1)
     return builder.as_markup()
 
 
 def custom_review_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="🚀 Генерировать",      callback_data="custom:generate")
-    builder.button(text="🔄 Изменить с шага 1", callback_data="custom:restart")
-    builder.button(text="🏠 В меню",            callback_data="menu:back")
+    builder.button(text="Сгенерировать", callback_data="custom:generate")
+    builder.button(text="Начать заново", callback_data="custom:restart")
+    builder.button(text="В меню",        callback_data="menu:back")
     builder.adjust(1)
     return builder.as_markup()
 
