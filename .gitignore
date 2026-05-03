@@ -1,0 +1,34 @@
+# ENV files
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+.Python
+venv/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# pytest / cache
+.pytest_cache/
+.mypy_cache/
+
+# coverage
+htmlcov/
+.coverage
