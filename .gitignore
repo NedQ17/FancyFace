@@ -5,6 +5,7 @@
 
 # Python
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *.pyo
 *.pyd
@@ -13,10 +14,16 @@ __pycache__/
 venv/
 env/
 .venv/
+*.egg-info/
+dist/
+build/
 
 # IDE
 .vscode/
 .idea/
+
+# Claude Code
+.claude/
 
 # Logs
 *.log
@@ -24,11 +31,14 @@ env/
 # OS
 .DS_Store
 Thumbs.db
+desktop.ini
 
 # pytest / cache
 .pytest_cache/
 .mypy_cache/
+.ruff_cache/
 
 # coverage
 htmlcov/
 .coverage
+coverage.xml
