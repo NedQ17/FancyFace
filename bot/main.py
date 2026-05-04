@@ -1,5 +1,8 @@
 import asyncio
+import contextlib
 import logging
+import logging.handlers
+import os
 
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
@@ -7,7 +10,7 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand
 
-from bot.config import BOT_TOKEN
+from bot.config import BOT_TOKEN, ADMIN_IDS
 from bot.database.pool import init_pool, close_pool
 from bot.database import ensure_default_styles, ensure_default_sessions
 from bot.data.styles import DEFAULT_STYLES
@@ -19,9 +22,19 @@ from bot.handlers import (
 )
 from bot.middlewares.auth import AuthMiddleware
 
+os.makedirs("logs", exist_ok=True)
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        logging.handlers.RotatingFileHandler(
+            "logs/bot.log",
+            maxBytes=10 * 1024 * 1024,
+            backupCount=5,
+            encoding="utf-8",
+        ),
+    ],
 )
 logger = logging.getLogger(__name__)
 
@@ -61,14 +74,18 @@ async def main() -> None:
         BotCommand(command="pay",     description="Пополнить баланс"),
     ])
 
-    asyncio.create_task(_paywall_reminder_loop(bot))
+    reminder_task = asyncio.create_task(_paywall_reminder_loop(bot))
 
     logger.info("Bot started")
     try:
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
+        reminder_task.cancel()
+        with contextlib.suppress(asyncio.CancelledError):
+            await reminder_task
         await close_pool()
         await bot.session.close()
+        logger.info("Bot stopped")
 
 
 async def _paywall_reminder_loop(bot: Bot) -> None:
@@ -81,16 +98,18 @@ async def _paywall_reminder_loop(bot: Bot) -> None:
         try:
             user_ids = await get_pending_paywall_reminders()
             for uid in user_ids:
+                if uid in ADMIN_IDS:
+                    continue
                 try:
                     await bot.send_message(
                         uid,
                         "Привет! Ты смотрел(а) наши тарифы, но так и не пополнил(а) баланс.\n\n"
-                        "Возвращайся — первые 3 генерации за подписку на канал уже ждут!",
+                        "Возвращайся — мы ждем!",
                         reply_markup=paywall_reminder_kb(),
                     )
                     await mark_paywall_reminder_sent(uid)
                 except Exception:
-                    pass
+                    logger.debug("Could not send reminder to user %s (likely blocked bot)", uid)
                 await asyncio.sleep(0.05)
-        except Exception as e:
-            logger.warning(f"Paywall reminder loop error: {e}")
+        except Exception:
+            logger.exception("Paywall reminder loop error")

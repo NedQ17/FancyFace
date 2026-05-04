@@ -43,3 +43,7 @@ class AdminFlow(StatesGroup):
     adding_session_description = State()
     adding_session_count = State()
     adding_session_prompts = State()
+    waiting_sales_date_range = State()
+    editing_style_name = State()
+    editing_style_emoji = State()
+    editing_style_prompt = State()

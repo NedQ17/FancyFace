@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncpg
+from datetime import datetime
 from bot.database.pool import get_pool
 
 
@@ -70,10 +71,14 @@ async def consume_credit(user_id: int) -> str:
 async def refund_credit(user_id: int, credit_type: str) -> None:
     pool = get_pool()
     async with pool.acquire() as conn:
-        col = "paid_credits" if credit_type == "paid" else "free_credits"
-        await conn.execute(
-            f"UPDATE users SET {col} = {col} + 1 WHERE user_id=$1", user_id
-        )
+        if credit_type == "paid":
+            await conn.execute(
+                "UPDATE users SET paid_credits = paid_credits + 1 WHERE user_id=$1", user_id
+            )
+        else:
+            await conn.execute(
+                "UPDATE users SET free_credits = free_credits + 1 WHERE user_id=$1", user_id
+            )
 
 
 async def add_credits(user_id: int, paid: int = 0, free: int = 0) -> None:
@@ -170,6 +175,39 @@ async def get_all_active_user_ids() -> list[int]:
         return [r["user_id"] for r in rows]
 
 
+async def get_sales_stats(from_dt: datetime, to_dt: datetime) -> dict:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        summary = await conn.fetchrow(
+            """SELECT
+                COUNT(*) AS total_count,
+                COALESCE(SUM(amount_kopecks) / 100, 0) AS total_rub
+               FROM payments
+               WHERE status = 'completed'
+                 AND created_at >= $1
+                 AND created_at < $2""",
+            from_dt, to_dt,
+        )
+        breakdown = await conn.fetch(
+            """SELECT
+                package_id,
+                COUNT(*) AS count,
+                COALESCE(SUM(amount_kopecks) / 100, 0) AS total_rub
+               FROM payments
+               WHERE status = 'completed'
+                 AND created_at >= $1
+                 AND created_at < $2
+               GROUP BY package_id
+               ORDER BY total_rub DESC""",
+            from_dt, to_dt,
+        )
+    return {
+        "total_count": summary["total_count"],
+        "total_rub":   summary["total_rub"],
+        "breakdown":   [dict(r) for r in breakdown],
+    }
+
+
 async def get_admin_stats() -> dict:
     pool = get_pool()
     async with pool.acquire() as conn:
@@ -218,6 +256,30 @@ async def add_style(name: str, emoji: str, prompt: str) -> int:
             name, emoji, prompt,
         )
         return row["id"]
+
+
+async def update_style_name(style_id: int, name: str) -> None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("UPDATE styles SET name=$2 WHERE id=$1", style_id, name)
+
+
+async def update_style_emoji(style_id: int, emoji: str) -> None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("UPDATE styles SET emoji=$2 WHERE id=$1", style_id, emoji)
+
+
+async def update_style_prompt(style_id: int, prompt: str) -> None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("UPDATE styles SET prompt=$2 WHERE id=$1", style_id, prompt)
+
+
+async def delete_style(style_id: int) -> None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("DELETE FROM styles WHERE id=$1", style_id)
 
 
 async def ensure_default_styles(default_styles: list[dict]) -> None:

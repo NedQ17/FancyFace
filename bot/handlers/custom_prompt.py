@@ -1,4 +1,5 @@
 import io
+import logging
 
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
@@ -16,6 +17,7 @@ from bot.services.generation import generate_portrait, upload_photo, GenerationE
 from bot.states.flows import CustomFlow
 
 router = Router()
+logger = logging.getLogger(__name__)
 
 TOTAL_STEPS = 11
 
@@ -706,6 +708,7 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
             reply_markup=after_custom_kb(),
         )
     except Exception:
+        logger.exception("Failed to send result photo to user %s", message.from_user.id)
         await db.fail_generation(gen_id)
         await db.refund_credit(message.from_user.id, credit_type)
         await status_msg.edit_text(
@@ -734,6 +737,7 @@ async def _get_photo_bytes(message: Message, bot: Bot) -> bytes | None:
         await bot.download_file(file.file_path, destination=buf)
         return buf.getvalue()
     except Exception:
+        logger.exception("Failed to download photo from user %s", message.from_user.id)
         return None
 
 

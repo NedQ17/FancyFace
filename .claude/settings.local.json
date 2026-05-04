@@ -9,7 +9,10 @@
       "PowerShell(python --version 2>&1)",
       "PowerShell(python -m pip install -r \"c:\\\\FancyFaceBot\\\\requirements.txt\" 2>&1)",
       "WebSearch",
-      "PowerShell(head -50)"
+      "PowerShell(head -50)",
+      "Bash(Get-ChildItem -Path \"c:\\\\FancyFaceBot\" -Recurse -File)",
+      "Bash(Select-Object FullName)",
+      "Bash(Sort-Object FullName)"
     ]
   }
 }

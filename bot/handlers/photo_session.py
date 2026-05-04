@@ -1,5 +1,6 @@
 import asyncio
 import io
+import logging
 
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
@@ -13,6 +14,7 @@ from bot.services.generation import generate_portrait, upload_photo, GenerationE
 from bot.states.flows import SessionFlow
 
 router = Router()
+logger = logging.getLogger(__name__)
 
 PHOTO_TIPS = (
     "Хорошо, начинаем фотосессию!\n\n"
@@ -142,28 +144,34 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
     )
 
     result_file_ids: list[str] = []
-    any_failed = False
+    used_free = False
 
     for i, prompt in enumerate(prompts, 1):
         credit_type = await db.consume_credit(message.from_user.id)
+        if credit_type == "free":
+            used_free = True
         try:
             result_url = await generate_portrait(face_url, prompt)
         except GenerationError:
             await db.refund_credit(message.from_user.id, credit_type)
-            any_failed = True
             await message.answer(f"Фото {i}/{len(prompts)} не удалось сгенерировать. Пропускаем.")
             continue
 
-        was_free = credit_type == "free"
-        result_msg = await message.answer_photo(
-            URLInputFile(result_url, filename=f"photo_{i}.jpg")
-        )
+        try:
+            result_msg = await message.answer_photo(
+                URLInputFile(result_url, filename=f"photo_{i}.jpg")
+            )
+        except Exception:
+            logger.exception("Failed to send photo %s/%s to user %s", i, len(prompts), message.from_user.id)
+            await db.refund_credit(message.from_user.id, credit_type)
+            continue
+
         result_file_ids.append(result_msg.photo[-1].file_id)
 
         if i < len(prompts):
             await asyncio.sleep(0.5)
 
-    await db.complete_generation(gen_id, result_file_ids, was_free=False)
+    await db.complete_generation(gen_id, result_file_ids, was_free=used_free)
 
     if result_file_ids:
         await message.answer(
@@ -194,6 +202,7 @@ async def _get_photo_bytes(message: Message, bot: Bot) -> bytes | None:
         await bot.download_file(file.file_path, destination=buf)
         return buf.getvalue()
     except Exception:
+        logger.exception("Failed to download photo from user %s", message.from_user.id)
         return None
 
 

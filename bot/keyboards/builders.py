@@ -319,11 +319,62 @@ def paywall_reminder_kb() -> InlineKeyboardMarkup:
 def admin_menu_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="📊 Статистика",        callback_data="admin:stats")
+    builder.button(text="💰 Продажи",           callback_data="admin:sales")
     builder.button(text="📣 Рассылка",          callback_data="admin:broadcast")
-    builder.button(text="💰 Начислить кредиты", callback_data="admin:add_credits")
+    builder.button(text="💳 Начислить кредиты", callback_data="admin:add_credits")
     builder.button(text="🚫 Заблокировать",     callback_data="admin:block")
-    builder.button(text="🎨 Добавить стиль",    callback_data="admin:add_style")
-    builder.button(text="📸 Добавить сессию",   callback_data="admin:add_session")
+    builder.button(text="🎨 Стили",             callback_data="admin:styles")
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def admin_styles_kb(styles: list[dict]) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    for s in styles:
+        label = f"{s['emoji']} {s['name']}" if s.get("emoji") else s["name"]
+        builder.button(text=label, callback_data=f"admin:style:edit:{s['id']}")
+    builder.adjust(2)
+    builder.row(InlineKeyboardButton(text="➕ Добавить новый стиль", callback_data="admin:style:add"))
+    builder.row(InlineKeyboardButton(text="← Назад", callback_data="admin:cancel"))
+    return builder.as_markup()
+
+
+def admin_style_edit_kb(style: dict) -> InlineKeyboardMarkup:
+    sid = style["id"]
+    emoji_display = style.get("emoji") or "—"
+    builder = InlineKeyboardBuilder()
+    builder.button(text=f"📝 Название: {style['name']}", callback_data=f"admin:style:name:{sid}")
+    builder.button(text=f"🎭 Эмодзи: {emoji_display}",  callback_data=f"admin:style:emoji:{sid}")
+    builder.button(text="📄 Редактировать промпт",        callback_data=f"admin:style:prompt:{sid}")
+    builder.button(text="🗑 Удалить стиль",               callback_data=f"admin:style:delete:{sid}")
+    builder.button(text="← К стилям",                    callback_data="admin:styles")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def admin_style_delete_confirm_kb(style_id: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Да, удалить",  callback_data=f"admin:style:delete:confirm:{style_id}")
+    builder.button(text="← Отмена",       callback_data=f"admin:style:edit:{style_id}")
+    builder.adjust(2)
+    return builder.as_markup()
+
+
+def admin_sales_period_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Сегодня",          callback_data="admin:sales:today")
+    builder.button(text="Неделя",           callback_data="admin:sales:week")
+    builder.button(text="Месяц",            callback_data="admin:sales:month")
+    builder.button(text="📅 Свой диапазон", callback_data="admin:sales:custom")
+    builder.button(text="← Назад",         callback_data="admin:cancel")
+    builder.adjust(3, 1, 1)
+    return builder.as_markup()
+
+
+def admin_sales_back_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="← К периодам", callback_data="admin:sales")
+    builder.button(text="🏠 Меню",      callback_data="admin:cancel")
     builder.adjust(2)
     return builder.as_markup()
 

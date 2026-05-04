@@ -21,6 +21,11 @@ CHANNEL_ID: int | str = os.getenv("CHANNEL_ID", "")
 CHANNEL_URL: str = os.getenv("CHANNEL_URL", "https://t.me/fancyfacebot_ideas")
 
 FAL_KEY: str = os.getenv("FAL_KEY", "").strip()
+if not FAL_KEY:
+    raise RuntimeError(
+        "FAL_KEY is not configured. Copy .env.example to .env and set FAL_KEY."
+    )
+
 PAYMENT_PROVIDER_TOKEN: str = os.getenv("PAYMENT_PROVIDER_TOKEN", "").strip()
 SUPABASE_DB_URL: str = os.getenv("SUPABASE_DB_URL", "").strip()
 if not SUPABASE_DB_URL:

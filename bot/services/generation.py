@@ -46,9 +46,14 @@ def _run_sync(prompt: str, face_url: str, scenes: list[str]) -> dict:
 
 
 async def upload_photo(photo_bytes: bytes) -> str:
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     try:
-        return await loop.run_in_executor(None, lambda: _upload_sync(photo_bytes))
+        return await asyncio.wait_for(
+            loop.run_in_executor(None, lambda: _upload_sync(photo_bytes)),
+            timeout=60.0,
+        )
+    except asyncio.TimeoutError:
+        raise GenerationError("Превышено время загрузки фото")
     except Exception as e:
         raise GenerationError(f"Ошибка загрузки фото: {e}") from e
 
@@ -57,9 +62,14 @@ async def generate_portrait(face_url: str, prompt: str, scenes: list[str] | None
     """Returns the image URL on the fal.ai CDN."""
     if not scenes:
         scenes = ["standing confidently, looking at camera"]
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     try:
-        result = await loop.run_in_executor(None, lambda: _run_sync(prompt, face_url, scenes))
+        result = await asyncio.wait_for(
+            loop.run_in_executor(None, lambda: _run_sync(prompt, face_url, scenes)),
+            timeout=120.0,
+        )
+    except asyncio.TimeoutError:
+        raise GenerationError("Превышено время ожидания генерации")
     except Exception as e:
         raise GenerationError(f"Ошибка генерации: {e}") from e
 
