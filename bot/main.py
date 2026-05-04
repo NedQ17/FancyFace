@@ -36,6 +36,7 @@ logging.basicConfig(
         ),
     ],
 )
+logging.getLogger("aiogram.event").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 

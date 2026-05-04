@@ -1,7 +1,7 @@
 from aiogram import Router, F, Bot
 from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import FSInputFile, Message, CallbackQuery
 import logging
 
 from bot import database as db
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 router = Router()
 
 WELCOME_TEXT = (
-    "Привет! Я <b>FancyFace</b> — бот, который делает профессиональные "
+    "Привет! Это <b>Авокадо Фотостудия</b> — бот, который делает профессиональные "
     "AI-фото с твоим лицом.\n\n"
     "Загрузи своё фото, выбери образ — и получи крутой результат за 20–30 секунд. "
     "Никакого фотографа, никакого фоторедактора.\n\n"
@@ -81,7 +81,12 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
         await message.answer(ALREADY_SUBSCRIBED_TEXT, reply_markup=main_menu_kb())
         return
 
-    await message.answer(WELCOME_TEXT, parse_mode="HTML", reply_markup=subscribe_kb())
+    await message.answer_photo(
+        FSInputFile("bot/assets/welcome.jpg"),
+        caption=WELCOME_TEXT,
+        parse_mode="HTML",
+        reply_markup=subscribe_kb(),
+    )
 
 
 @router.callback_query(F.data == "subscribe:check")
@@ -96,9 +101,8 @@ async def check_subscription(callback: CallbackQuery, bot: Bot) -> None:
 
     if user.get("channel_subscribed"):
         logger.info(f"User {user_id} already marked as subscribed in DB")
-        await callback.message.edit_text(
-            ALREADY_SUBSCRIBED_TEXT, reply_markup=main_menu_kb()
-        )
+        await callback.message.delete()
+        await callback.message.answer(ALREADY_SUBSCRIBED_TEXT, reply_markup=main_menu_kb())
         await callback.answer()
         return
 
@@ -140,7 +144,6 @@ async def check_subscription(callback: CallbackQuery, bot: Bot) -> None:
                 pass
 
     response_text = SUBSCRIPTION_SUCCESS_TEXT if bonus_claimed else RESUBSCRIBED_TEXT
-    await callback.message.edit_text(
-        response_text, parse_mode="HTML", reply_markup=main_menu_kb()
-    )
+    await callback.message.delete()
+    await callback.message.answer(response_text, parse_mode="HTML", reply_markup=main_menu_kb())
     await callback.answer()
