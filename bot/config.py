@@ -38,7 +38,7 @@ FREE_CREDITS_FOR_SUBSCRIPTION: int = 2
 REFERRAL_CREDITS: int = 2
 
 PACKAGES: list[dict] = [
-    {"id": "basic",    "credits": 10, "price_rub": 199, "label": "10 фото — 199 ₽"},
+    {"id": "basic",    "credits": 10, "price_rub": 199, "label": "🔥 10 фото — 199 ₽ 🔥"},
     {"id": "standard", "credits": 30, "price_rub": 499, "label": "30 фото — 499 ₽"},
     {"id": "premium",  "credits": 70, "price_rub": 899, "label": "70 фото — 899 ₽"},
 ]
