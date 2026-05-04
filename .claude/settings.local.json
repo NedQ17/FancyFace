@@ -8,7 +8,8 @@
       "PowerShell(py -3 -m pip --version 2>&1)",
       "PowerShell(python --version 2>&1)",
       "PowerShell(python -m pip install -r \"c:\\\\FancyFaceBot\\\\requirements.txt\" 2>&1)",
-      "WebSearch"
+      "WebSearch",
+      "PowerShell(head -50)"
     ]
   }
 }

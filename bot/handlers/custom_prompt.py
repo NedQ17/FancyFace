@@ -531,7 +531,8 @@ async def step11_era(callback: CallbackQuery, state: FSMContext) -> None:
 async def _show_review(callback: CallbackQuery, state: FSMContext) -> None:
     data = await state.get_data()
     desc = _describe_settings(data)
-    await callback.message.answer(
+    await state.set_state(CustomFlow.step_review)
+    await callback.message.edit_text(
         desc, parse_mode="HTML", reply_markup=custom_review_kb()
     )
     await callback.answer()
@@ -544,6 +545,103 @@ async def custom_generate(callback: CallbackQuery, state: FSMContext) -> None:
         await state.update_data(prompt=_assemble_prompt(data))
     await state.set_state(CustomFlow.waiting_photo)
     await callback.message.answer(PHOTO_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
+    await callback.answer()
+
+
+# ─── Back navigation ─────────────────────────────────────────────────────────
+
+@router.callback_query(F.data == "custom:back")
+async def custom_back(callback: CallbackQuery, state: FSMContext) -> None:
+    current = await state.get_state()
+    data = await state.get_data()
+
+    if current == CustomFlow.step1_gender:
+        await state.clear()
+        await callback.message.edit_text(
+            "Как хочешь создать образ?", reply_markup=custom_mode_kb()
+        )
+    elif current == CustomFlow.step2_category:
+        await state.set_state(CustomFlow.step1_gender)
+        await callback.message.edit_text(
+            f"{_step(1)} — Пол:", parse_mode="HTML",
+            reply_markup=custom_gender_kb(),
+        )
+    elif current == CustomFlow.step3_framing:
+        await state.set_state(CustomFlow.step2_category)
+        await callback.message.edit_text(
+            f"{_step(2)} — Категория:", parse_mode="HTML",
+            reply_markup=custom_category_kb(),
+        )
+    elif current == CustomFlow.step4_render:
+        await state.set_state(CustomFlow.step3_framing)
+        await callback.message.edit_text(
+            f"{_step(3)} — Кадрирование портрета:", parse_mode="HTML",
+            reply_markup=custom_framing_kb(),
+        )
+    elif current == CustomFlow.step5_mood:
+        await state.set_state(CustomFlow.step4_render)
+        await callback.message.edit_text(
+            f"{_step(4)} — Стиль рендеринга:", parse_mode="HTML",
+            reply_markup=custom_render_kb(),
+        )
+    elif current == CustomFlow.step6_clothing:
+        await state.set_state(CustomFlow.step5_mood)
+        await callback.message.edit_text(
+            f"{_step(5)} — Настроение:", parse_mode="HTML",
+            reply_markup=custom_mood_kb(),
+        )
+    elif current == CustomFlow.step6b_clothing_type:
+        await state.set_state(CustomFlow.step6_clothing)
+        await callback.message.edit_text(
+            f"{_step(6)} — Одежда:", parse_mode="HTML",
+            reply_markup=custom_clothing_kb(),
+        )
+    elif current == CustomFlow.step7_background:
+        if data.get("clothing") == "replace":
+            await state.set_state(CustomFlow.step6b_clothing_type)
+            await callback.message.edit_text(
+                f"{_step(6)} — Выбери тип одежды:", parse_mode="HTML",
+                reply_markup=custom_clothing_type_kb(),
+            )
+        else:
+            await state.set_state(CustomFlow.step6_clothing)
+            await callback.message.edit_text(
+                f"{_step(6)} — Одежда:", parse_mode="HTML",
+                reply_markup=custom_clothing_kb(),
+            )
+    elif current == CustomFlow.step8_lighting:
+        await state.set_state(CustomFlow.step7_background)
+        await callback.message.edit_text(
+            f"{_step(7)} — Фон:", parse_mode="HTML",
+            reply_markup=custom_background_kb(),
+        )
+    elif current == CustomFlow.step9_details:
+        await state.set_state(CustomFlow.step8_lighting)
+        await callback.message.edit_text(
+            f"{_step(8)} — Освещение:", parse_mode="HTML",
+            reply_markup=custom_lighting_kb(),
+        )
+    elif current == CustomFlow.step10_restrictions:
+        await state.set_state(CustomFlow.step9_details)
+        await callback.message.edit_text(
+            f"{_step(9)} — Детали и декор:\n<i>Можно выбрать несколько</i>",
+            parse_mode="HTML",
+            reply_markup=custom_details_kb(data.get("details", set())),
+        )
+    elif current == CustomFlow.step11_era:
+        await state.set_state(CustomFlow.step10_restrictions)
+        await callback.message.edit_text(
+            f"{_step(10)} — Ограничения:\n<i>Можно выбрать несколько или пропустить</i>",
+            parse_mode="HTML",
+            reply_markup=custom_restrictions_kb(data.get("restrictions", set())),
+        )
+    elif current == CustomFlow.step_review:
+        await state.set_state(CustomFlow.step11_era)
+        await callback.message.edit_text(
+            f"{_step(11)} — Стиль эпохи:", parse_mode="HTML",
+            reply_markup=custom_era_kb(),
+        )
+
     await callback.answer()
 
 
