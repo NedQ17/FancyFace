@@ -17,8 +17,8 @@ ADMIN_IDS: list[int] = [
     if x.strip().isdigit()
 ]
 
-CHANNEL_ID: int | str = os.getenv("CHANNEL_ID", "")
-CHANNEL_URL: str = os.getenv("CHANNEL_URL", "https://t.me/fancyfacebot_ideas")
+CHANNEL_ID: int | str = os.getenv("CHANNEL_ID", "@avocado_photo_studio")
+CHANNEL_URL: str = os.getenv("CHANNEL_URL", "https://t.me/avocado_photo_studio")
 
 FAL_KEY: str = os.getenv("FAL_KEY", "").strip()
 if not FAL_KEY:
