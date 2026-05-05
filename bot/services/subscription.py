@@ -22,8 +22,10 @@ async def is_subscribed(bot: Bot, user_id: int) -> bool:
     for attempt in range(3):
         try:
             member = await bot.get_chat_member(CHANNEL_ID, user_id)
-            logger.info(f"User {user_id} subscription status: {member.status}")
-            return member.status not in ("left", "kicked")
+            subscribed = member.status not in ("left", "kicked")
+            if not subscribed:
+                logger.info("User %s subscription check failed: status=%s", user_id, member.status)
+            return subscribed
         except TelegramBadRequest as e:
             logger.warning(f"Failed to check subscription for user {user_id}: {e}")
             return False
