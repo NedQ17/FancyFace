@@ -13,6 +13,13 @@ os.environ["FAL_KEY"] = FAL_KEY
 
 FAL_MODEL = "fal-ai/nano-banana-2/edit"
 
+NEGATIVE_PROMPT = (
+    "cartoon, illustration, anime, cgi, 3d render, ai generated look, plastic skin, oversmoothed skin, "
+    "beauty filter, deformed face, bad anatomy, extra fingers, missing fingers, bad hands, uncanny eyes, "
+    "duplicated features, unrealistic symmetry, wax skin, blurry, distorted proportions, low detail, "
+    "overprocessed, fake smile, unrealistic teeth, doll face"
+)
+
 
 class GenerationError(Exception):
     pass
@@ -24,10 +31,7 @@ def _upload_sync(data: bytes, content_type: str = "image/jpeg") -> str:
 
 def _build_prompt(prompt: str, scenes: list[str]) -> str:
     scene = random.choice(scenes)
-    return (
-        f"Generate a photorealistic portrait photo of the person from the reference image. "
-        f"{scene}. {prompt}. Preserve the person's exact facial features, face shape, and identity."
-    )
+    return f"{prompt}. Scene: {scene}."
 
 
 def _run_sync(prompt: str, face_url: str, scenes: list[str]) -> dict:
@@ -36,6 +40,7 @@ def _run_sync(prompt: str, face_url: str, scenes: list[str]) -> dict:
         arguments={
             "image_urls": [face_url],
             "prompt": _build_prompt(prompt, scenes),
+            "negative_prompt": NEGATIVE_PROMPT,
             "num_images": 1,
             "aspect_ratio": "3:4",
             "resolution": "1K",

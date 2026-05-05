@@ -3,11 +3,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Деловой портрет",
         "emoji": "💼",
         "prompt": (
-            "corporate executive portrait, tailored business suit or blazer with crisp dress shirt, "
-            "modern office atmosphere with soft-focus glass walls or bookshelves in background, "
-            "professional rembrandt or butterfly lighting, polished confident appearance, "
-            "authoritative yet approachable presence, linkedin-quality headshot, "
-            "sharp eyes with natural catchlights, photorealistic, high quality"
+            "preserve exact facial identity from reference photo, same person, realistic facial proportions and natural skin texture with visible pores, subtle asymmetry, "
+            "corporate executive portrait, tailored navy or charcoal business suit or blazer with crisp dress shirt or turtleneck, "
+            "seated at desk or standing near window or walking through workspace or adjusting cufflinks or holding tablet, "
+            "body angled 30-45 degrees from camera with relaxed shoulders, slight head tilt, confident natural posture, soft candid smile or focused serious expression, "
+            "professional workspace environment, executive office or coworking loft or conference room or city-view workspace or minimalist corporate interior, "
+            "unique environment details, varied office furniture and background composition, different office layout each generation, "
+            "professional rembrandt or butterfly lighting mixed with natural daylight, shot on 85mm portrait lens, "
+            "linkedin-quality editorial headshot, sharp eyes with natural catchlights, realistic photography imperfections, shallow depth of field, photorealistic, high quality"
         ),
         "scenes": [
             "standing at floor-to-ceiling office windows overlooking city skyline, arms crossed",
@@ -22,11 +25,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Fashion",
         "emoji": "👗",
         "prompt": (
-            "high fashion editorial portrait, avant-garde clothing with bold silhouettes or luxurious fabrics, "
-            "dramatic studio or urban backdrop, intense editorial gaze, fashion week atmosphere, "
-            "striking makeup or grooming, dynamic interplay of light and shadow, "
-            "vogue or harper's bazaar aesthetic, strong graphic composition, "
-            "high-key or split studio lighting, photorealistic, high quality"
+            "preserve exact facial identity from reference photo, same person, natural skin texture and realistic facial structure, "
+            "high fashion editorial portrait, avant-garde clothing with bold silhouettes or luxurious fabrics or luxury streetwear layering, "
+            "dynamic pose such as walking mid-step or leaning against surface or adjusting sunglasses or collar, body partially cropped for editorial framing, "
+            "intense editorial gaze away from camera or direct eye contact, "
+            "fashion environment, editorial studio or rooftop or luxury boutique interior or textured urban architecture or backstage runway atmosphere, "
+            "varied set design and styling props, unique composition each generation, "
+            "strong graphic composition, vogue or harper's bazaar aesthetic, split studio lighting or hard flash mixed with shadows, "
+            "shot on 50mm or 85mm lens, photorealistic, high quality"
         ),
         "scenes": [
             "standing against a stark white studio seamless backdrop, one hand on hip",
@@ -41,11 +47,13 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Кинематографичный",
         "emoji": "🎬",
         "prompt": (
-            "cinematic film still portrait, anamorphic lens oval bokeh, moody atmospheric lighting "
-            "with strong directional shadows and selective highlights, cinematic color grading "
-            "with teal-orange or desaturated cool palette, visible analog film grain, "
-            "storytelling composition suggesting a pivotal scene in a prestige drama, "
-            "practical neon or tungsten lights as background elements, photorealistic, high quality"
+            "preserve exact facial identity from reference photo, same person, cinematic film still portrait, natural facial asymmetry and authentic skin texture, "
+            "subject looking over shoulder or standing mid-motion or sitting in contemplative pose, "
+            "cinematic environment, rainy street or dim apartment interior or subway platform or hotel corridor or neon-lit alley or moody restaurant booth, "
+            "unique storytelling background elements, varied practical light sources, "
+            "anamorphic lens oval bokeh, moody atmospheric lighting with strong directional shadows and selective highlights, "
+            "cinematic color grading with teal-orange or desaturated cool palette, subtle analog film grain, "
+            "storytelling composition suggesting a pivotal scene in a prestige drama, imperfect natural framing, photorealistic, high quality"
         ),
         "scenes": [
             "standing in a rain-soaked alley at night, neon signs reflecting on wet pavement below",
@@ -60,11 +68,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Русский стиль",
         "emoji": "🌺",
         "prompt": (
-            "elegant portrait in russian folk and cultural aesthetic, traditional embroidery "
-            "or ornamental textile patterns visible in clothing or surroundings, "
-            "warm amber and deep burgundy tones, sarafan or folk-inspired garments with intricate details, "
-            "birch forest bokeh or ornate slavic interior as background, "
-            "rich textural contrasts, golden hour warmth, slavic folk art spirit, photorealistic, high quality"
+            "preserve exact facial identity from reference photo, same person, elegant portrait in russian folk and cultural aesthetic, "
+            "realistic skin texture and soft natural expression, "
+            "traditional embroidery or ornamental textile patterns visible in clothing or surroundings, "
+            "sarafan or linen shirt or folk-inspired garments with intricate details, "
+            "natural pose sitting or standing while holding shawl or interacting with fabric, "
+            "slavic cultural environment, ornate wooden interior or birch forest or countryside house or candlelit traditional room or snowy rural landscape, "
+            "varied authentic folk details and textures, warm amber and deep burgundy tones, "
+            "golden light or candlelight ambiance, rich textural contrasts, slavic folk art spirit, photorealistic, high quality"
         ),
         "scenes": [
             "standing in a birch forest clearing, golden light filtering through white trunks",
@@ -79,12 +90,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "90-е",
         "emoji": "📼",
         "prompt": (
-            "authentic 1990s portrait shot on film, visible grain and slightly faded color saturation, "
-            "oversized denim jacket or colorful windbreaker or sporty tracksuit, chunky sneakers or platform shoes, "
-            "scrunchie or curtain bangs or flat-top hairstyle, "
-            "fluorescent indoor lighting or tungsten warmth, "
-            "early 90s hip-hop or grunge or eurodance fashion energy, kodak gold film color rendering, "
-            "photorealistic, high quality"
+            "preserve exact facial identity from reference photo, same person, authentic 1990s portrait shot on film, "
+            "visible grain and slightly faded color saturation, "
+            "oversized denim jacket or colorful windbreaker or sporty tracksuit, "
+            "casual pose sitting or leaning or holding disposable camera or standing near railing, relaxed candid attitude, "
+            "nostalgic 90s environment, apartment stairwell or arcade room or school hallway or bedroom with posters or city courtyard or underground passage, "
+            "varied retro props and details, chunky sneakers or platform shoes, "
+            "fluorescent indoor lighting or tungsten warmth, early 90s hip-hop or grunge or eurodance fashion energy, "
+            "kodak gold film color rendering, photorealistic, high quality"
         ),
         "scenes": [
             "standing against school lockers in a fluorescent-lit hallway, arms crossed",
@@ -99,12 +112,15 @@ DEFAULT_STYLES: list[dict] = [
         "name": "День рождения",
         "emoji": "🎂",
         "prompt": (
-            "festive birthday portrait, bokeh of colorful balloons and metallic streamers and fairy lights filling background, "
+            "preserve exact facial identity from reference photo, same person, festive birthday portrait, "
+            "joyful authentic expression and natural skin texture, "
+            "subject laughing naturally or holding cake or champagne glass or adjusting party hat, "
+            "birthday celebration environment, decorated apartment or rooftop party or restaurant private room or cozy house gathering or luxury event hall, "
+            "varied festive decorations and party props, "
+            "bokeh of colorful balloons and metallic streamers and fairy lights filling background, "
             "warm golden party lighting mixed with colorful accent glow, confetti suspended mid-air, "
-            "shiny foil birthday decorations and ribbons catching light, "
-            "birthday candle glow as subtle warm rim light, "
-            "joyful celebratory atmosphere with vibrant party color palette of pink gold and confetti colors, "
-            "photorealistic, high quality"
+            "shiny foil birthday decorations and ribbons catching light, birthday candle glow as subtle warm rim light, "
+            "spontaneous celebratory atmosphere, photorealistic, high quality"
         ),
         "scenes": [
             "standing behind a birthday cake with lit candles on a decorated table, leaning forward",
@@ -119,11 +135,12 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Новый год",
         "emoji": "🎄",
         "prompt": (
-            "new year and christmas portrait, warm bokeh of christmas tree lights filling background "
-            "in gold and red and green, soft snowflakes drifting in cold air, "
-            "cozy knitted sweater or elegant festive outfit, "
-            "silver and gold ornaments and tinsel catching light, "
-            "champagne bubbles or sparkler glow as accent light, "
+            "preserve exact facial identity from reference photo, same person, new year and christmas portrait, "
+            "cozy knitted sweater or elegant festive outfit, natural expression with slight smile or thoughtful gaze, "
+            "subject holding sparkler or champagne flute or gift box, "
+            "holiday environment, decorated living room or snowy terrace or christmas market or luxury holiday dinner setting or festive apartment interior, "
+            "varied ornaments and seasonal decor, "
+            "warm bokeh of christmas tree lights filling background in gold red and green, soft snowflakes drifting in cold air or visible outside window, "
             "magical winter holiday mood, twinkling light reflections in eyes, photorealistic, high quality"
         ),
         "scenes": [
@@ -139,12 +156,13 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Зима",
         "emoji": "❄️",
         "prompt": (
-            "winter outdoor portrait, individual snowflakes falling and settling on clothing and hair, "
-            "breath visible as soft mist in freezing cold air, "
+            "preserve exact facial identity from reference photo, same person, winter outdoor portrait, "
+            "individual snowflakes falling and settling on clothing and hair, breath visible as soft mist in freezing cold air, "
             "chunky wool coat or fur-lined jacket or thick knit scarf and hat, "
-            "bare birch trees or snow-laden pine forest in soft-focus background, "
-            "cold blue-white natural daylight creating crisp contrast with warm skin tones, "
-            "serene peaceful winter mood, photorealistic, high quality"
+            "natural candid pose walking through snow or adjusting scarf or warming hands, "
+            "winter environment, snowy city street or frozen lake or pine forest trail or mountain village or urban park after snowfall, "
+            "varied snow textures and atmospheric details, "
+            "cold blue-white natural daylight creating crisp contrast with warm skin tones, serene peaceful winter mood, photorealistic, high quality"
         ),
         "scenes": [
             "standing on a snow-covered forest path, hands in coat pockets, snowflakes falling",
@@ -159,12 +177,13 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Фэнтези",
         "emoji": "🧙",
         "prompt": (
-            "epic high fantasy portrait, otherworldly magical atmosphere, "
-            "elaborate period-inspired or mystical costume with intricate embroidery and gemstones, "
-            "arcane glowing runes or soft bioluminescent light emanating from surroundings, "
-            "dramatic volumetric god rays and rich jewel-tone color palette of deep violet and gold, "
-            "the tangible presence of magic and ancient power in the air, "
-            "high fantasy film production design quality, photorealistic, high quality"
+            "preserve exact facial identity from reference photo, same person, epic high fantasy portrait, realistic anatomy and facial structure, "
+            "elaborate period-inspired or mystical costume with intricate embroidery gemstones or leather details, "
+            "subject holding magical artifact or touching glowing runes or standing in dramatic pose, "
+            "fantasy environment, ancient stone hall or enchanted forest or royal chamber or mystical ruins or mountain citadel, "
+            "varied magical background elements and atmospheric details, "
+            "arcane glowing symbols or soft bioluminescent light emanating from surroundings, dramatic volumetric god rays, "
+            "rich jewel-tone palette of deep violet emerald and gold, high fantasy film production design quality, photorealistic, high quality"
         ),
         "scenes": [
             "standing at the entrance of an ancient stone temple, glowing runes on the archway",
@@ -179,12 +198,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Чёрно-белый",
         "emoji": "🖤",
         "prompt": (
-            "striking black and white fine art portrait, deep rich blacks and luminous bright highlights, "
+            "preserve exact facial identity from reference photo, same person, striking black and white fine art portrait, "
+            "realistic skin pores and natural facial contrast, deep rich blacks and luminous bright highlights, "
             "strong graphic composition with bold tonal contrasts, "
+            "subject seated or leaning with contemplative expression or adjusting collar, "
+            "timeless portrait environment, minimalist studio backdrop or textured wall or architectural interior or window-lit room, "
+            "subtle varied background details, "
             "richard avedon or helmut newton or irving penn photographic tradition, "
-            "textural contrast between skin pores and smooth or architectural background, "
-            "emotional psychological depth, timeless quality transcending any era, "
-            "masterful tonal range from true blacks to clean whites, photorealistic, high quality"
+            "emotional psychological depth, masterful tonal range from true blacks to clean whites, photorealistic, high quality"
         ),
         "scenes": [
             "standing against a smooth white studio wall, one shoulder forward, direct gaze",
@@ -199,12 +220,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Пляж",
         "emoji": "🏖️",
         "prompt": (
-            "golden hour beach portrait, warm amber and coral sunlight raking at low angle, "
-            "ocean waves and endless horizon in soft bokeh background, "
-            "salty sea breeze atmosphere with hair catching in wind, "
-            "sun-kissed warm skin tones, casual linen or swimwear or beach cover-up, "
-            "wet sand or surf foam catching golden reflections, "
-            "mediterranean or tropical beach vacation energy, photorealistic, high quality"
+            "preserve exact facial identity from reference photo, same person, golden hour beach portrait, "
+            "warm amber and coral sunlight at low angle, "
+            "subject walking barefoot near shoreline or sitting on sand or turning toward ocean breeze, "
+            "casual linen or swimwear or beach cover-up, hair catching wind naturally, "
+            "beach environment, tropical coastline or mediterranean cove or rocky seaside or resort beach club or dune landscape, "
+            "varied ocean textures and vacation details, "
+            "ocean waves and endless horizon in soft bokeh background, sun-kissed warm skin tones, "
+            "wet sand or surf foam catching golden reflections, photorealistic, high quality"
         ),
         "scenes": [
             "standing at the shoreline, small waves washing over feet, facing the sunset",
@@ -219,11 +242,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Ретро",
         "emoji": "🕺",
         "prompt": (
-            "authentic 1970s portrait, warm analog film palette dominated by yellows oranges and earthy browns, "
+            "preserve exact facial identity from reference photo, same person, authentic 1970s portrait, "
+            "warm analog film palette dominated by yellows oranges and earthy browns, "
             "bell-bottom jeans or wide-lapel collar or floral print shirt or peasant blouse, "
-            "kodachrome or fujifilm color rendering with slight warmth shift, "
-            "film grain and natural vignette, groovy disco era or free-spirited bohemian spirit, "
-            "natural hair and sideburns celebrated, photorealistic, high quality"
+            "relaxed pose seated on furniture or leaning casually, "
+            "retro environment, vintage apartment interior or retro diner or wood-paneled room or disco club or classic car setting, "
+            "varied nostalgic props and decor details, "
+            "kodachrome or fujifilm color rendering with slight warmth shift, film grain and natural vignette, "
+            "groovy disco era or free-spirited bohemian spirit, photorealistic, high quality"
         ),
         "scenes": [
             "sitting in a wicker peacock chair, legs crossed, one arm draped over the side",
@@ -238,12 +264,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Люкс",
         "emoji": "💎",
         "prompt": (
-            "ultra-luxury lifestyle portrait, bespoke tailoring or haute couture with exceptional fabric drape visible, "
-            "opulent environment suggesting private penthouse or superyacht deck or grand hotel lobby, "
-            "subtle designer accessories catching directional light, "
-            "marble and polished brass and crystal as background architecture, "
+            "preserve exact facial identity from reference photo, same person, ultra-luxury lifestyle portrait, "
+            "bespoke tailoring or haute couture with exceptional fabric drape visible, "
+            "natural confident posture seated in lounge or standing near architecture or walking through elegant interior, "
+            "luxury environment, private penthouse or superyacht deck or grand hotel lobby or marble staircase or designer suite interior, "
+            "varied premium materials and opulent details, subtle designer accessories catching directional light, "
+            "marble polished brass and crystal as background architecture, "
             "sophisticated aspirational wealth aesthetic with understated elegance, "
-            "cream ivory charcoal and gold color palette, editorial magazine quality, photorealistic, high quality"
+            "cream ivory charcoal and gold palette, photorealistic, high quality"
         ),
         "scenes": [
             "standing on a penthouse terrace overlooking a city at night, hands resting on glass railing",
@@ -258,12 +286,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Студия",
         "emoji": "📸",
         "prompt": (
-            "perfect professional studio portrait, seamless paper backdrop in neutral gray or white, "
+            "preserve exact facial identity from reference photo, same person, perfect professional studio portrait, "
+            "seamless paper backdrop in neutral gray or white or beige or muted pastel, "
+            "realistic facial proportions and visible skin texture, "
+            "subject slightly angled from camera with relaxed shoulders and natural hand placement, "
             "meticulous three-point or butterfly lighting with precise fill ratio, "
             "defined catchlights in eyes, individual hairs crisp against clean background, "
-            "medium format camera quality sharpness and tonal depth, "
-            "commercial photography standard with flawless even illumination, "
-            "clean polished appearance without clinical coldness, photorealistic, high quality"
+            "subtle variation in backdrop tone and lighting setup each generation, "
+            "medium format camera quality sharpness and tonal depth, polished commercial photography standard, photorealistic, high quality"
         ),
         "scenes": [
             "standing against a light gray seamless backdrop, relaxed arms at sides, direct gaze",
@@ -278,12 +308,14 @@ DEFAULT_STYLES: list[dict] = [
         "name": "Арт",
         "emoji": "🎨",
         "prompt": (
-            "contemporary fine art portrait, painterly mixed-media aesthetic with rich impasto-like surface texture "
-            "or loose expressive brushwork feel, bold unconventional use of color beyond realism, "
-            "gallery exhibition quality with strong artistic intent, "
-            "the subject rendered as an art statement rather than documentary record, "
-            "annie leibovitz or cindy sherman conceptual tradition, "
-            "unexpected composition breaking classical portrait rules, photorealistic, high quality"
+            "preserve exact facial identity from reference photo, same person, contemporary fine art portrait, "
+            "natural skin texture and realistic anatomy, "
+            "painterly mixed-media aesthetic with rich texture or expressive brushwork atmosphere while maintaining realism, "
+            "bold unconventional use of color beyond realism, unexpected composition breaking classical portrait rules, "
+            "subject in expressive pose with slight movement or unconventional crop, "
+            "artistic environment, gallery-inspired set or textured backdrop or abstract installation or color field composition, "
+            "varied conceptual details and visual elements, strong artistic intent, "
+            "editorial fine art photography realism, photorealistic, high quality"
         ),
         "scenes": [
             "standing in an art gallery surrounded by large abstract canvases, arms at sides",
