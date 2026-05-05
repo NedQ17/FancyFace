@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 import os
 import random
 import fal_client
@@ -10,6 +11,8 @@ import httpx
 from bot.config import FAL_KEY
 
 os.environ["FAL_KEY"] = FAL_KEY
+
+_executor = concurrent.futures.ThreadPoolExecutor(max_workers=200)
 
 FAL_MODEL = "fal-ai/nano-banana-2/edit"
 
@@ -60,7 +63,7 @@ async def upload_photo(photo_bytes: bytes) -> str:
             await asyncio.sleep(2 ** attempt)
         try:
             return await asyncio.wait_for(
-                loop.run_in_executor(None, lambda: _upload_sync(photo_bytes)),
+                loop.run_in_executor(_executor, lambda: _upload_sync(photo_bytes)),
                 timeout=60.0,
             )
         except asyncio.TimeoutError:
@@ -77,7 +80,7 @@ async def generate_portrait(face_url: str, prompt: str, scenes: list[str] | None
     loop = asyncio.get_running_loop()
     try:
         result = await asyncio.wait_for(
-            loop.run_in_executor(None, lambda: _run_sync(prompt, face_url, scenes)),
+            loop.run_in_executor(_executor, lambda: _run_sync(prompt, face_url, scenes)),
             timeout=120.0,
         )
     except asyncio.TimeoutError:
