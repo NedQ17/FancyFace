@@ -264,6 +264,14 @@ def paywall_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+def credits_empty_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="💳 Пополнить", callback_data="menu:topup")
+    builder.button(text="← Меню", callback_data="menu:back")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
 def payment_link_kb(url: str) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="💳 Оплатить", url=url)

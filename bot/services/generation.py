@@ -30,12 +30,10 @@ def _upload_sync(data: bytes, content_type: str = "image/jpeg") -> str:
 
 
 def _build_prompt(prompt: str, scenes: list[str]) -> str:
-    scene = random.choice(scenes)
-    return (
-        f"{prompt}. Scene: {scene}. "
-        "Preserve exact facial expression and emotion from the reference photo unchanged, "
-        "do not alter, enhance or exaggerate the expression."
-    )
+    if scenes:
+        scene = random.choice(scenes)
+        return f"{prompt}. Scene: {scene}."
+    return prompt
 
 
 def _run_sync(prompt: str, face_url: str, scenes: list[str]) -> dict:

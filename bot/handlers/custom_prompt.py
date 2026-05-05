@@ -10,7 +10,7 @@ from bot.keyboards.builders import (
     custom_mode_kb, custom_gender_kb, custom_category_kb, custom_framing_kb,
     custom_render_kb, custom_mood_kb, custom_clothing_kb, custom_clothing_type_kb,
     custom_background_kb, custom_lighting_kb, custom_details_kb, custom_restrictions_kb,
-    custom_era_kb, custom_review_kb, after_custom_kb, paywall_kb, cancel_kb,
+    custom_era_kb, custom_review_kb, after_custom_kb, paywall_kb, credits_empty_kb, cancel_kb,
     DETAILS_OPTIONS, RESTRICTIONS_OPTIONS,
 )
 from bot.services.generation import generate_portrait, upload_photo, GenerationError
@@ -667,7 +667,7 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
         await state.clear()
         await message.answer(
             "У тебя закончились кредиты. Пополни баланс, чтобы продолжить.",
-            reply_markup=paywall_kb(),
+            reply_markup=credits_empty_kb(),
         )
         await db.mark_paywall_shown(message.from_user.id)
         return

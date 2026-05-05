@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, URLInputFile
 
 from bot import database as db
-from bot.keyboards.builders import styles_kb, after_style_kb, paywall_kb, cancel_kb
+from bot.keyboards.builders import styles_kb, after_style_kb, paywall_kb, credits_empty_kb, cancel_kb
 from bot.services.generation import generate_portrait, upload_photo, GenerationError
 
 logger = logging.getLogger(__name__)
@@ -93,7 +93,7 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
         await state.clear()
         await message.answer(
             "У тебя закончились кредиты. Пополни баланс, чтобы продолжить.",
-            reply_markup=paywall_kb(),
+            reply_markup=credits_empty_kb(),
         )
         await db.mark_paywall_shown(message.from_user.id)
         return

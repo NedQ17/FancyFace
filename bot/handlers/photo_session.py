@@ -8,7 +8,7 @@ from aiogram.types import CallbackQuery, Message, URLInputFile
 
 from bot import database as db
 from bot.keyboards.builders import (
-    sessions_kb, session_detail_kb, after_session_kb, paywall_kb, cancel_kb,
+    sessions_kb, session_detail_kb, after_session_kb, paywall_kb, credits_empty_kb, cancel_kb,
 )
 from bot.services.generation import generate_portrait, upload_photo, GenerationError
 from bot.states.flows import SessionFlow
@@ -74,7 +74,7 @@ async def session_start(callback: CallbackQuery, state: FSMContext) -> None:
             f"Для этой фотосессии нужно <b>{needed} кредита</b>, "
             f"а у тебя <b>{total}</b>.\n\nПополни баланс, чтобы продолжить.",
             parse_mode="HTML",
-            reply_markup=paywall_kb(),
+            reply_markup=credits_empty_kb(),
         )
         await db.mark_paywall_shown(callback.from_user.id)
         await callback.answer()
@@ -107,7 +107,7 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
         await state.clear()
         await message.answer(
             f"Недостаточно кредитов для фотосессии ({needed} нужно, {total} есть).",
-            reply_markup=paywall_kb(),
+            reply_markup=credits_empty_kb(),
         )
         await db.mark_paywall_shown(message.from_user.id)
         return

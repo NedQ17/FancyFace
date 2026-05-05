@@ -4,21 +4,15 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "💼",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, realistic facial proportions and natural skin texture with visible pores and subtle asymmetry, "
-            "corporate executive portrait, professional business attire appropriate for formal corporate photography, varied tailoring styles typical for executive portraits, "
-            "seated or standing or walking through workspace or interacting naturally with environment, confident natural posture, neutral or focused expression, "
-            "professional office environment with varied corporate settings such as executive offices, modern coworking spaces, glass architecture interiors or minimalist corporate lounges, "
-            "different office layouts and background compositions each generation, "
-            "professional cinematic lighting combining natural daylight and studio setup, shot on 85mm portrait lens, "
-            "linkedin-quality editorial headshot, shallow depth of field, photorealistic, high quality, "
-            "varied composition and wardrobe styling within corporate photography standards"
+            "preserve exact facial expression from reference photo unchanged, "
+            "corporate executive portrait, professional business attire with varied styles each generation such as tailored suits, blazers, turtlenecks or smart business casual, "
+            "varied natural poses such as seated at desk, standing near window, walking through office or leaning against architecture, confident neutral posture, "
+            "varied professional environments each generation such as executive offices, glass architecture coworking spaces, minimalist corporate lounges, conference rooms or city-view workspaces, "
+            "different background compositions and office layouts each generation, "
+            "professional cinematic lighting combining natural daylight and studio setup, shot on 85mm portrait lens, shallow depth of field, "
+            "linkedin-quality editorial headshot, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing at floor-to-ceiling office windows overlooking city skyline, arms crossed",
-            "sitting at a polished boardroom table, leaning forward slightly with hands clasped",
-            "standing in a modern office lobby, one hand in pocket",
-            "sitting in an executive leather chair, relaxed but composed posture",
-            "standing in front of a glass whiteboard covered in diagrams, hands behind back",
-        ],
+        "scenes": [],
         "sort_order": 0,
     },
     {
@@ -26,19 +20,14 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "👗",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, natural skin texture and realistic facial structure, "
-            "high fashion editorial portrait, fashion-forward styling with luxurious or avant-garde or street-luxury clothing appropriate for editorial photography, "
-            "dynamic expressive poses such as walking, leaning, adjusting clothing or standing in strong composed posture, editorial framing with partial crop, "
-            "fashion environment with varied editorial locations such as studio sets, rooftop spaces, luxury interiors, urban architectural backgrounds or backstage fashion atmosphere, "
-            "strong graphic composition, vogue or harper's bazaar aesthetic, dramatic studio lighting or flash photography mixed with shadows, "
-            "shot on 50mm or 85mm lens, photorealistic, high quality, diverse styling and composition each generation"
+            "preserve exact facial expression from reference photo unchanged, "
+            "high fashion editorial portrait, varied fashion-forward styling each generation such as luxury tailoring, avant-garde silhouettes, street-luxury layering or minimalist editorial looks, "
+            "varied dynamic poses each generation such as walking mid-stride, leaning against surface, adjusting clothing, strong standing posture or editorial crop, "
+            "varied fashion environments each generation such as studio sets, rooftop terraces, luxury boutique interiors, raw urban architecture or backstage runway atmosphere, "
+            "strong graphic composition, vogue or harper's bazaar aesthetic, dramatic studio lighting or flash photography with shadows, "
+            "shot on 50mm or 85mm lens, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing against a stark white studio seamless backdrop, one hand on hip",
-            "leaning against a raw concrete wall in an industrial loft, arms relaxed",
-            "sitting on the edge of a minimalist white cube, legs crossed, gaze intense",
-            "walking through an empty fashion show runway, mid-stride",
-            "standing under dramatic overhead studio spotlight, face tilted slightly upward",
-        ],
+        "scenes": [],
         "sort_order": 1,
     },
     {
@@ -46,19 +35,14 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "🎬",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, cinematic film still portrait, natural facial asymmetry and authentic skin texture, "
-            "subject in candid or staged cinematic moment such as standing in motion, sitting in contemplation or turning mid-action, "
-            "cinematic environments with varied urban and interior storytelling locations such as apartments, corridors, transit spaces, vehicles or minimal architectural environments, "
-            "dynamic practical lighting from environmental sources, anamorphic lens bokeh, moody cinematic lighting with strong contrast and selective highlights, "
+            "preserve exact facial expression from reference photo unchanged, "
+            "varied cinematic moments each generation such as standing mid-motion, sitting in contemplation, turning over shoulder or caught in a decisive moment, "
+            "varied cinematic environments each generation such as dim apartments, subway platforms, hotel corridors, rain-soaked streets, vehicles, bars or minimal architectural spaces, "
+            "practical mixed lighting from environmental sources, anamorphic lens bokeh, moody cinematic lighting with strong directional contrast, "
             "film color grading with teal-orange or cool desaturated palette, subtle film grain, "
-            "storytelling composition suggesting a scene from a dramatic film, photorealistic, high quality, varied cinematic staging and atmosphere"
+            "storytelling composition suggesting a scene from a prestige drama, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing in a rain-soaked alley at night, neon signs reflecting on wet pavement below",
-            "sitting alone at a bar counter, hands wrapped around a glass, staring forward",
-            "leaning against a car door on an empty street at dusk, hands in jacket pockets",
-            "standing in a doorway backlit by warm interior light, face half in shadow",
-            "sitting on a fire escape staircase overlooking city lights below",
-        ],
+        "scenes": [],
         "sort_order": 2,
     },
     {
@@ -67,62 +51,47 @@ DEFAULT_STYLES: list[dict] = [
         "prompt": (
             "preserve exact facial identity from reference photo, same person, elegant portrait inspired by russian folk and slavic cultural aesthetics, "
             "realistic skin texture and natural expression, "
-            "traditional textile patterns and embroidered elements integrated into clothing or environment, "
-            "culturally inspired garments with detailed craftsmanship, natural poses interacting with clothing or surroundings, "
-            "slavic-inspired environments with varied settings such as birch forests, countryside houses, wooden interiors, open fields or winter rural landscapes, "
-            "warm earthy tones and golden ambient lighting or natural daylight, rich cultural textures and materials, "
-            "photorealistic, high quality, varied cultural composition and environment each generation"
+            "preserve exact facial expression from reference photo unchanged, "
+            "varied culturally inspired garments each generation such as embroidered sarafans, linen shirts, folk-pattern shawls or ornate traditional outfits, "
+            "natural poses interacting with clothing or surroundings, "
+            "varied slavic-inspired environments each generation such as birch forests, countryside houses, wooden interiors with folk decor, open fields or winter rural landscapes, "
+            "warm earthy tones and golden ambient lighting or soft natural daylight, rich folk textures and materials, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing in a birch forest clearing, golden light filtering through white trunks",
-            "sitting on a wooden bench outside a traditional log house, hands folded in lap",
-            "standing at the edge of a field of wildflowers, light breeze in the air",
-            "sitting at an ornate wooden table near a window with embroidered curtains",
-            "standing on a old wooden bridge over a forest stream, leaning on the railing",
-        ],
+        "scenes": [],
         "sort_order": 3,
     },
     {
         "name": "90-е",
         "emoji": "📼",
         "prompt": (
-            "preserve exact facial identity from reference photo, same person, authentic 1990s film portrait, "
-            "visible film grain and slightly faded analog color tones, "
-            "casual 90s-inspired clothing such as denim, windbreakers or sporty streetwear typical of the era, "
-            "relaxed candid poses such as leaning, sitting or standing naturally, "
-            "nostalgic environments with varied locations such as urban courtyards, stairwells, school corridors, arcades or residential blocks, "
+            "preserve exact facial identity from reference photo, same person, authentic 1990s snapshot portrait, "
+            "preserve exact facial expression from reference photo unchanged, "
+            "shot on cheap 1990s point-and-shoot film camera or polaroid instant camera, "
+            "strong direct on-camera flash causing slight overexposure on face"
+            "heavy film grain, slightly soft focus, color fringing, faded or slightly desaturated analog colors, "
+            "kodak gold or fujifilm consumer film color rendering with warm yellowish cast, "
+            "imperfect amateur composition as if taken casually by a friend, "
+            "varied casual 90s clothing each generation such as oversized denim, colorful windbreakers, sporty tracksuits, band tees, flannel shirts or platform shoes, "
+            "relaxed candid poses such as leaning, sitting, standing casually or walking, "
+            "varied nostalgic environments each generation such as urban courtyards, residential blocks, parks, arcades, cafes, underpasses, rooftops or indoor social spaces, "
             "fluorescent or tungsten indoor lighting or natural overcast daylight, "
-            "90s cultural atmosphere inspired by street fashion, music and youth culture, "
-            "photorealistic, high quality, varied nostalgic composition and styling each generation"
+            "90s youth culture atmosphere, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing against school lockers in a fluorescent-lit hallway, arms crossed",
-            "sitting on concrete front steps of an apartment block, elbows on knees",
-            "leaning against a chain-link fence in an urban courtyard, one foot propped up",
-            "standing at a pay phone booth on a city sidewalk, receiver in hand",
-            "sitting on a low brick wall in a housing estate courtyard, looking ahead",
-        ],
+        "scenes": [],
         "sort_order": 4,
     },
     {
         "name": "День рождения",
         "emoji": "🎂",
         "prompt": (
-            "preserve exact facial identity from reference photo, same person, festive birthday portrait, "
-            "natural authentic expression fitting the celebratory mood such as joy, laughter or warmth, expression may reflect the festive context, "
-            "subject interacting naturally with celebration elements such as cake, gifts, drinks or party decor, "
-            "birthday environments with varied setups such as home parties, restaurant spaces, rooftop gatherings or decorated event rooms, "
-            "dynamic festive decorations including balloons, streamers, lights and confetti, "
-            "warm party lighting with colorful accents and ambient glow, celebratory atmosphere with spontaneous composition, "
-            "photorealistic, high quality, varied celebration layouts and decorative focus each generation"
+            "preserve exact facial identity from reference photo, same person, festive birthday portrait, natural skin texture, "
+            "subtle natural expression fitting the celebratory mood, slight warmth or gentle smile allowed but not exaggerated or forced, "
+            "varied natural interactions with celebration setting each generation, subject may be near cake, gifts or decorations without holding forced props, "
+            "varied birthday environments each generation such as decorated home spaces, restaurant private rooms, rooftop gatherings or event halls, "
+            "festive decorations with balloons, lights, streamers and warm ambient party glow, "
+            "spontaneous candid atmosphere, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing behind a birthday cake with lit candles on a decorated table, leaning forward",
-            "sitting at a party table surrounded by gifts and balloons, smiling",
-            "standing in a crowd of balloons, holding a glass of champagne",
-            "sitting on a decorated chair with foil balloons tied to it",
-            "standing at a party venue entrance under an arch of balloons",
-        ],
+        "scenes": [],
         "sort_order": 5,
     },
     {
@@ -130,21 +99,13 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "🎄",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, new year and christmas themed portrait, "
-            "cozy seasonal clothing or elegant festive outfits, "
-            "natural expression fitting the holiday mood such as calm warmth, quiet joy or festive delight, expression may reflect the seasonal context, "
-            "subject interacting with holiday elements such as gifts, sparklers or drinks, "
-            "holiday environments with varied settings such as decorated living rooms, snowy outdoor streets, christmas markets or festive dining spaces, "
-            "warm christmas lighting with tree lights and soft glowing decorations, "
-            "winter atmosphere with subtle snow or indoor cozy ambiance, "
-            "photorealistic, high quality, varied festive environments and composition each generation"
+            "subtle natural expression fitting the holiday mood, quiet warmth or gentle festive feeling allowed but not exaggerated, "
+            "varied seasonal clothing each generation such as cozy knitwear, elegant festive outfits or casual winter layers, "
+            "varied holiday environments each generation such as decorated living rooms, snowy outdoor streets, christmas markets or festive dining spaces, "
+            "warm christmas tree lights in bokeh background, soft seasonal decorations, subtle snow or cozy indoor winter ambiance, "
+            "photorealistic, high quality"
         ),
-        "scenes": [
-            "sitting cross-legged on the floor next to a decorated christmas tree, gift in hands",
-            "standing at a frost-covered window holding a mug of hot drink, looking outside",
-            "standing on a snowy city street under festive light garlands strung between buildings",
-            "sitting at a holiday dinner table with candles and decorated centerpiece",
-            "standing in a doorway of a warm lit house, snow falling behind, holding sparklers",
-        ],
+        "scenes": [],
         "sort_order": 6,
     },
     {
@@ -152,41 +113,30 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "❄️",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, winter outdoor portrait, "
-            "natural cold-weather interaction with environment such as walking, standing or adjusting clothing, "
-            "winter clothing appropriate for cold conditions such as coats, scarves or layered outfits, "
-            "snowy environments with varied locations such as forests, city streets, parks, frozen lakes or rural landscapes, "
-            "visible snowfall or frost, breath condensation in cold air, "
-            "natural cold daylight with soft blue tones and warm skin contrast, serene winter atmosphere, "
-            "photorealistic, high quality, varied winter scenery and composition each generation"
+            "preserve exact facial expression from reference photo unchanged, "
+            "varied natural cold-weather interactions each generation such as walking, standing, adjusting scarf or looking into distance, "
+            "varied winter clothing each generation such as wool coats, fur-lined jackets, chunky scarves, hats or layered outfits, "
+            "varied winter environments each generation such as snowy city streets, pine forests, frozen lakes, mountain villages or urban parks after snowfall, "
+            "visible snowfall or frost, breath condensation in cold air, cold natural daylight with blue tones and warm skin contrast, "
+            "serene winter atmosphere, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing on a snow-covered forest path, hands in coat pockets, snowflakes falling",
-            "sitting on a snow-dusted wooden bench in a park, wrapped in a scarf",
-            "standing at the edge of a frozen lake, pine trees behind, looking across the ice",
-            "leaning against a snow-covered fence post in an open winter field",
-            "standing on a city street after snowfall, fresh snow on shoulders and hair",
-        ],
+        "scenes": [],
         "sort_order": 7,
     },
     {
         "name": "Фэнтези",
         "emoji": "🧙",
         "prompt": (
-            "preserve exact facial identity from reference photo, same person, epic fantasy portrait with realistic facial structure, "
-            "mystical or medieval-inspired attire with detailed craftsmanship, "
-            "subject interacting with fantasy elements such as magical artifacts, glowing runes or symbolic objects, "
-            "fantasy environments with varied locations such as ancient ruins, enchanted forests, royal halls, mystical caves or floating landscapes, "
-            "magical lighting effects such as volumetric light rays, glowing energy or atmospheric fog, "
-            "rich fantasy color palette with jewel tones, cinematic fantasy production quality, "
-            "photorealistic, high quality, varied fantasy worldbuilding and scene composition each generation"
+            "preserve exact facial identity from reference photo, same person, ultra-realistic epic fantasy portrait, "
+            "preserve exact facial expression from reference photo unchanged, "
+            "hyperrealistic skin detail with visible pores and natural facial asymmetry, photorealistic material rendering for all fabrics and surfaces, "
+            "varied mystical or medieval-inspired attire each generation with intricate craftsmanship such as armor, robes, leather or ceremonial garments, "
+            "subject in varied natural fantasy poses each generation, "
+            "varied fantasy environments each generation such as ancient stone halls, enchanted forests, royal chambers, mystical ruins, mountain citadels or arcane libraries, "
+            "realistic magical lighting such as volumetric god rays, soft bioluminescent glow or flickering torchlight, "
+            "rich jewel-tone palette, cinematic fantasy realism at the level of high-end film production, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing at the entrance of an ancient stone temple, glowing runes on the archway",
-            "sitting on a throne of twisted roots in an enchanted forest, staff in hand",
-            "standing on a cliff edge overlooking a mystical valley filled with floating islands",
-            "kneeling beside a glowing magical artifact on an altar, hands outstretched",
-            "standing in a grand library of an ancient tower, magical tomes floating around",
-        ],
+        "scenes": [],
         "sort_order": 8,
     },
     {
@@ -194,21 +144,14 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "🖤",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, black and white fine art portrait, "
-            "natural skin texture and strong tonal contrast, "
-            "subject in contemplative or neutral poses such as sitting, standing or leaning, "
-            "minimalist or architectural environments with varied settings such as studio backgrounds, textured walls, hallways or window-lit interiors, "
-            "strong use of light and shadow for dramatic contrast, "
-            "fine art photographic tradition inspired by classic portrait masters, "
-            "emotional depth and timeless composition, "
-            "photorealistic, high quality, varied monochrome composition and lighting each generation"
+            "preserve exact facial expression from reference photo unchanged, "
+            "natural skin texture with strong tonal contrast, deep rich blacks and luminous highlights, "
+            "varied poses each generation such as sitting, standing, leaning or looking away, "
+            "varied minimalist or architectural environments each generation such as studio backgrounds, textured walls, hallways, staircases or window-lit interiors, "
+            "dramatic use of light and shadow, fine art photographic tradition inspired by avedon or newton or penn, "
+            "emotional depth and timeless composition, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing against a smooth white studio wall, one shoulder forward, direct gaze",
-            "sitting on a simple wooden chair in a bare room, hands on knees",
-            "leaning against a brick wall, arms folded, face in dramatic side light",
-            "standing in an empty hallway, light pouring from a window at the far end",
-            "sitting on a staircase, elbows on knees, looking upward",
-        ],
+        "scenes": [],
         "sort_order": 9,
     },
     {
@@ -216,41 +159,29 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "🏖️",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, golden hour beach portrait, "
-            "natural interaction with coastal environment such as walking, sitting or standing near water, "
-            "casual summer clothing or swimwear appropriate for beach setting, "
-            "beach environments with varied locations such as tropical shores, mediterranean beaches, rocky coastlines, dunes or seaside piers, "
-            "warm sunlight with ocean reflections, wind movement in hair and fabric, "
-            "natural relaxed coastal atmosphere, "
-            "photorealistic, high quality, varied seaside composition and scenery each generation"
+            "preserve exact facial expression from reference photo unchanged, "
+            "varied natural coastal interactions each generation such as walking barefoot, sitting on sand, standing near water or looking at horizon, "
+            "varied casual summer clothing each generation such as linen shirts, swimwear, beach cover-ups or light dresses, "
+            "varied beach environments each generation such as tropical shores, mediterranean coves, rocky coastlines, resort beaches or sandy dunes, "
+            "warm low-angle sunlight with ocean reflections, wind movement in hair and fabric, "
+            "natural relaxed coastal atmosphere, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing at the shoreline, small waves washing over feet, facing the sunset",
-            "sitting on the sand with knees pulled up, ocean stretching behind",
-            "leaning against a weathered wooden beach pier post, wind in hair",
-            "walking along the waterline, footprints in wet sand behind",
-            "sitting on a beach towel, leaning back on hands, face tilted toward the sun",
-        ],
+        "scenes": [],
         "sort_order": 10,
     },
     {
         "name": "Ретро",
         "emoji": "🕺",
         "prompt": (
-            "preserve exact facial identity from reference photo, same person, retro inspired portrait from 1970s aesthetic, "
-            "vintage clothing styles typical of the era, "
+            "preserve exact facial identity from reference photo, same person, retro portrait from 1970s aesthetic, "
+            "preserve exact facial expression from reference photo unchanged, "
+            "varied vintage clothing each generation typical of the 1970s such as bell-bottoms, wide-lapel shirts, floral prints, peasant blouses or disco-era outfits, "
             "relaxed natural poses such as sitting, leaning or standing casually, "
-            "retro environments with varied settings such as vintage apartments, diners, disco interiors, wood-paneled rooms or classic cars, "
-            "warm analog film tones with grain and slight vignette, "
-            "nostalgic atmosphere inspired by 1970s culture and lifestyle, "
-            "photorealistic, high quality, varied retro composition and environment each generation"
+            "varied retro environments each generation such as vintage apartments, diners, disco interiors, wood-paneled rooms, classic car settings or outdoor 70s locations, "
+            "warm analog film tones dominated by yellows, oranges and earthy browns, kodachrome film grain and slight vignette, "
+            "nostalgic 1970s atmosphere, photorealistic, high quality"
         ),
-        "scenes": [
-            "sitting in a wicker peacock chair, legs crossed, one arm draped over the side",
-            "standing in a living room with shag carpet and wood paneling, hand on hip",
-            "leaning against a vintage car hood in a suburban driveway, arms crossed",
-            "sitting on a bean bag chair, lava lamp glowing on the shelf behind",
-            "standing on a disco dance floor with coloured light reflections, mid-pose",
-        ],
+        "scenes": [],
         "sort_order": 11,
     },
     {
@@ -258,20 +189,14 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "💎",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, luxury editorial portrait, "
-            "elegant high-end styling with refined tailored clothing, "
-            "composed confident posture in natural luxury poses such as sitting, standing or walking, "
-            "luxury environments with varied settings such as penthouses, yachts, luxury hotels, marble interiors or private clubs, "
-            "premium materials such as marble, glass, brass and crystal, "
-            "cinematic soft lighting with elegant reflections, sophisticated luxury aesthetic, "
-            "photorealistic, high quality, varied luxury composition and architecture each generation"
+            "preserve exact facial expression from reference photo unchanged, "
+            "varied elegant high-end styling each generation such as bespoke suits, haute couture gowns, refined business attire or sophisticated casual luxury, "
+            "composed confident posture in varied natural poses each generation, "
+            "varied luxury environments each generation such as private penthouses, superyacht decks, grand hotel lobbies, marble staircases or exclusive private clubs, "
+            "premium architectural materials such as marble, polished brass, crystal and glass, "
+            "cinematic soft lighting with elegant reflections, sophisticated understated luxury aesthetic, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing on a penthouse terrace overlooking a city at night, hands resting on glass railing",
-            "sitting in a deep leather armchair in a private members club, glass in hand",
-            "standing on the deck of a superyacht, ocean horizon behind, jacket over shoulder",
-            "sitting at a marble bar in a grand hotel, suit immaculate, looking ahead",
-            "standing at the top of a sweeping staircase in a luxury villa, hand on bannister",
-        ],
+        "scenes": [],
         "sort_order": 12,
     },
     {
@@ -279,19 +204,14 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "📸",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, professional studio portrait, "
-            "natural posture and controlled composition, "
-            "studio lighting setup with seamless backdrop in varied neutral or soft tones, "
-            "consistent professional photography quality, subtle variation in lighting direction and background tone each generation, "
-            "clean commercial portrait style with focus on facial detail and realism, "
-            "photorealistic, high quality, varied studio setup and lighting configuration each generation"
+            "preserve exact facial expression from reference photo unchanged, "
+            "natural relaxed posture with varied compositions each generation, "
+            "varied studio setups each generation such as textured painted backdrops, colored seamless paper, fabric curtain backgrounds, simple styled sets with furniture or architectural studio elements, "
+            "not just plain white background, studio has character and visual interest, "
+            "varied professional lighting configurations each generation such as rembrandt, butterfly, split or soft box setups, "
+            "clean commercial portrait quality with sharp facial detail, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing against a light gray seamless backdrop, relaxed arms at sides, direct gaze",
-            "sitting on a low black studio stool, hands on thighs, chin slightly down",
-            "standing with one hand in pocket, slight three-quarter body angle",
-            "sitting on the floor with legs crossed, leaning slightly forward",
-            "standing with arms folded, weight on one leg, natural relaxed stance",
-        ],
+        "scenes": [],
         "sort_order": 13,
     },
     {
@@ -299,20 +219,30 @@ DEFAULT_STYLES: list[dict] = [
         "emoji": "🎨",
         "prompt": (
             "preserve exact facial identity from reference photo, same person, contemporary fine art portrait, "
-            "expressive artistic interpretation with realistic base, "
-            "subject placed in conceptual or gallery-inspired environments such as art studios, exhibitions, abstract installations or creative staged sets, "
-            "bold artistic use of color, texture or composition while maintaining recognizability, "
-            "experimental framing and conceptual visual storytelling, inspired by modern fine art photography, "
-            "photorealistic, high quality, varied artistic concept and visual execution each generation"
+            "preserve exact facial expression from reference photo unchanged, "
+            "expressive artistic interpretation with realistic photographic base, "
+            "varied conceptual environments each generation such as art studios, gallery spaces, abstract installations, large-scale painted backdrops or creative staged environments, "
+            "bold artistic use of color, texture and composition while maintaining photorealistic rendering, "
+            "varied experimental framing and conceptual visual storytelling each generation, "
+            "inspired by modern fine art photography, photorealistic, high quality"
         ),
-        "scenes": [
-            "standing in an art gallery surrounded by large abstract canvases, arms at sides",
-            "sitting on the floor of a studio space, paint-covered drop cloths around",
-            "leaning against a sculpture in a contemporary museum, casual and contemplative",
-            "standing in front of a large blank canvas, brush or palette in hand",
-            "sitting on a window ledge in an artist's loft, natural light flooding in",
-        ],
+        "scenes": [],
         "sort_order": 14,
+    },
+    {
+        "name": "Детство нулевых",
+        "emoji": "💿",
+        "prompt": (
+            "preserve exact facial identity from reference photo, same person, authentic early 2000s portrait, "
+            "subtle natural expression fitting the nostalgic youthful mood, slight casual warmth allowed but not exaggerated, "
+            "visible digital noise and slightly oversaturated early digital camera colors typical of consumer cameras from 2000-2008, "
+            "varied early 2000s clothing each generation such as low-rise jeans, graphic tees, velour tracksuits, cargo pants, colorful hoodies or early streetwear, "
+            "natural relaxed casual poses, no forced props or objects in hands, "
+            "varied nostalgic environments each generation such as school corridors, suburban parks, shopping mall interiors, bedroom with posters, outdoor playgrounds or city blocks, "
+            "early 2000s youth culture atmosphere, warm slightly oversaturated consumer digital camera look, photorealistic, high quality"
+        ),
+        "scenes": [],
+        "sort_order": 16,
     },
     {
         "name": "Селфи на улице",
@@ -330,13 +260,7 @@ DEFAULT_STYLES: list[dict] = [
             "lively street at night with neon signs traffic and blurry figures passing by, "
             "no smartphone no phone no device visible in hands, authentic vibe of a poorly composed spontaneous real iPhone night photo, photorealistic, high quality"
         ),
-        "scenes": [
-            "holding phone at arm's length on a busy night street, neon signs behind",
-            "quick selfie outside a bar entrance, friends blurred in background",
-            "casual shot on a rainy city sidewalk, streetlights reflecting on wet pavement",
-            "spontaneous selfie at a crosswalk, cars and traffic lights in background",
-            "accidental-looking selfie near a convenience store at night, harsh overhead light",
-        ],
+        "scenes": [],
         "sort_order": 15,
     },
 ]
