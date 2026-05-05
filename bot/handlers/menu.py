@@ -1,5 +1,5 @@
 from aiogram import Router, F
-from aiogram.filters import Command
+from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message
 
@@ -31,3 +31,19 @@ async def cmd_menu(message: Message, state: FSMContext) -> None:
 @router.callback_query(F.data == "menu:back")
 async def menu_back(callback: CallbackQuery, state: FSMContext) -> None:
     await show_main_menu(callback, state)
+
+
+@router.message(StateFilter(None), F.photo | F.document)
+async def fallback_photo(message: Message) -> None:
+    await message.answer(
+        "Чтобы создать фото, сначала выбери стиль или запусти конструктор.",
+        reply_markup=main_menu_kb(),
+    )
+
+
+@router.message(StateFilter(None), F.text & ~F.text.startswith("/"))
+async def fallback_text(message: Message) -> None:
+    await message.answer(
+        "Не понимаю эту команду. Используй меню ниже.",
+        reply_markup=main_menu_kb(),
+    )
