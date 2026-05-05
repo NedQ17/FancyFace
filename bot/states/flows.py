@@ -2,6 +2,7 @@ from aiogram.fsm.state import State, StatesGroup
 
 
 class StyleFlow(StatesGroup):
+    waiting_custom_addition = State()
     waiting_photo = State()
 
 

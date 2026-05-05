@@ -6,7 +6,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, Message, URLInputFile
 
 from bot import database as db
-from bot.keyboards.builders import styles_kb, after_style_kb, paywall_kb, credits_empty_kb, cancel_kb
+from bot.keyboards.builders import styles_kb, after_style_kb, paywall_kb, credits_empty_kb, cancel_kb, style_addition_kb
 from bot.services.generation import generate_portrait, upload_photo, GenerationError
 
 logger = logging.getLogger(__name__)
@@ -55,6 +55,13 @@ async def noop(callback: CallbackQuery) -> None:
     await callback.answer()
 
 
+ADDITION_QUESTION = (
+    "Хочешь добавить что-то конкретное к образу?\n\n"
+    "Например: <i>красное платье</i>, <i>букет цветов в руках</i>, <i>чёрные очки</i>\n\n"
+    "Напиши или нажми «Пропустить»."
+)
+
+
 @router.callback_query(F.data.startswith("style:select:"))
 async def style_selected(callback: CallbackQuery, state: FSMContext) -> None:
     style_id = int(callback.data.split(":")[2])
@@ -63,19 +70,34 @@ async def style_selected(callback: CallbackQuery, state: FSMContext) -> None:
         await callback.answer("Стиль не найден.", show_alert=True)
         return
 
-    await state.set_state(StyleFlow.waiting_photo)
+    await state.set_state(StyleFlow.waiting_custom_addition)
     await state.update_data(style_id=style_id)
 
+    await callback.message.edit_text(ADDITION_QUESTION, parse_mode="HTML", reply_markup=style_addition_kb())
+    await callback.answer()
+
+
+@router.callback_query(F.data == "style:skip_addition")
+async def skip_addition(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data(custom_addition=None)
+    await state.set_state(StyleFlow.waiting_photo)
     await callback.message.edit_text(PHOTO_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
     await callback.answer()
+
+
+@router.message(StyleFlow.waiting_custom_addition, F.text)
+async def receive_addition(message: Message, state: FSMContext) -> None:
+    await state.update_data(custom_addition=message.text.strip())
+    await state.set_state(StyleFlow.waiting_photo)
+    await message.answer(PHOTO_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
 
 
 @router.callback_query(F.data.startswith("style:retry:"))
 async def style_retry(callback: CallbackQuery, state: FSMContext) -> None:
     style_id = int(callback.data.split(":")[2])
-    await state.set_state(StyleFlow.waiting_photo)
-    await state.update_data(style_id=style_id)
-    await callback.message.answer(PHOTO_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
+    await state.set_state(StyleFlow.waiting_custom_addition)
+    await state.update_data(style_id=style_id, custom_addition=None)
+    await callback.message.answer(ADDITION_QUESTION, parse_mode="HTML", reply_markup=style_addition_kb())
     await callback.answer()
 
 
@@ -83,6 +105,7 @@ async def style_retry(callback: CallbackQuery, state: FSMContext) -> None:
 async def style_photo_received(message: Message, state: FSMContext, bot: Bot) -> None:
     data = await state.get_data()
     style_id: int = data["style_id"]
+    custom_addition: str | None = data.get("custom_addition")
 
     user = await db.get_user(message.from_user.id)
     if not user:
@@ -120,9 +143,13 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
         source_file_id=_get_file_id(message),
     )
 
+    prompt = style["prompt"]
+    if custom_addition:
+        prompt = f"{prompt}. Additional user request: {custom_addition}."
+
     try:
         face_url = await upload_photo(photo_bytes)
-        result_url = await generate_portrait(face_url, style["prompt"], style.get("scenes") or [])
+        result_url = await generate_portrait(face_url, prompt, style.get("scenes") or [])
     except GenerationError as exc:
         logger.error("Generation failed for user %s, style %s: %s", message.from_user.id, style_id, exc)
         await db.fail_generation(gen_id)
