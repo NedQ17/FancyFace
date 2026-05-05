@@ -4,13 +4,13 @@ import logging
 
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
-from aiogram.types import CallbackQuery, Message, URLInputFile
+from aiogram.types import BufferedInputFile, CallbackQuery, Message
 
 from bot import database as db
 from bot.keyboards.builders import (
     sessions_kb, session_detail_kb, after_session_kb, paywall_kb, credits_empty_kb, cancel_kb,
 )
-from bot.services.generation import generate_portrait, upload_photo, GenerationError
+from bot.services.generation import generate_portrait, upload_photo, download_image, GenerationError
 from bot.states.flows import SessionFlow
 
 router = Router()
@@ -158,8 +158,9 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
             continue
 
         try:
+            result_bytes = await download_image(result_url)
             result_msg = await message.answer_photo(
-                URLInputFile(result_url, filename=f"photo_{i}.jpg")
+                BufferedInputFile(result_bytes, filename=f"photo_{i}.jpg")
             )
         except Exception:
             logger.exception("Failed to send photo %s/%s to user %s", i, len(prompts), message.from_user.id)
