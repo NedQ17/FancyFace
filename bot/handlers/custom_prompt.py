@@ -680,21 +680,26 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
         await status_msg.edit_text("Не удалось прочитать фото. Попробуй ещё раз.")
         return
 
-    credit_type = await db.consume_credit(message.from_user.id)
+    uid = message.from_user.id
+    credit_type = await db.consume_credit(uid)
     gen_id = await db.create_generation(
-        user_id=message.from_user.id,
+        user_id=uid,
         gen_type="custom",
         prompt=prompt,
         source_file_id=_get_file_id(message),
     )
 
+    logger.info("User %s custom generation started", uid)
     try:
         face_url = await upload_photo(photo_bytes)
+        logger.info("User %s photo uploaded", uid)
         result_url = await generate_portrait(face_url, prompt)
+        logger.info("User %s generation done, downloading result", uid)
         result_bytes = await download_image(result_url)
+        logger.info("User %s result downloaded (%d bytes)", uid, len(result_bytes))
     except GenerationError:
         await db.fail_generation(gen_id)
-        await db.refund_credit(message.from_user.id, credit_type)
+        await db.refund_credit(uid, credit_type)
         await status_msg.edit_text(
             "Что-то пошло не так при генерации. Кредит не списан — попробуй ещё раз.",
             reply_markup=after_custom_kb(),
@@ -708,10 +713,11 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
             BufferedInputFile(result_bytes, filename="result.jpg"),
             reply_markup=after_custom_kb(),
         )
+        logger.info("User %s result sent successfully", uid)
     except Exception:
-        logger.exception("Failed to send result photo to user %s", message.from_user.id)
+        logger.exception("User %s failed to send result photo", uid)
         await db.fail_generation(gen_id)
-        await db.refund_credit(message.from_user.id, credit_type)
+        await db.refund_credit(uid, credit_type)
         await status_msg.edit_text(
             "Не удалось отправить изображение. Кредит не списан — попробуй ещё раз.",
             reply_markup=after_custom_kb(),

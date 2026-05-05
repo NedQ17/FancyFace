@@ -124,9 +124,12 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
         await status_msg.edit_text("Не удалось прочитать фото. Попробуй ещё раз.")
         return
 
+    uid = message.from_user.id
     face_url = None
     try:
+        logger.info("User %s uploading photo for session_id=%s", uid, session_id)
         face_url = await upload_photo(photo_bytes)
+        logger.info("User %s photo uploaded", uid)
     except GenerationError:
         await status_msg.edit_text(
             "Не удалось загрузить фото. Попробуй ещё раз.",
@@ -136,7 +139,7 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
 
     prompts: list[str] = session["prompts"]
     gen_id = await db.create_generation(
-        user_id=message.from_user.id,
+        user_id=uid,
         gen_type="session",
         prompt=session["name"],
         session_id=session_id,
@@ -147,13 +150,15 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
     used_free = False
 
     for i, prompt in enumerate(prompts, 1):
-        credit_type = await db.consume_credit(message.from_user.id)
+        credit_type = await db.consume_credit(uid)
         if credit_type == "free":
             used_free = True
         try:
+            logger.info("User %s generating photo %s/%s session_id=%s", uid, i, len(prompts), session_id)
             result_url = await generate_portrait(face_url, prompt)
+            logger.info("User %s photo %s/%s done, downloading", uid, i, len(prompts))
         except GenerationError:
-            await db.refund_credit(message.from_user.id, credit_type)
+            await db.refund_credit(uid, credit_type)
             await message.answer(f"Фото {i}/{len(prompts)} не удалось сгенерировать. Пропускаем.")
             continue
 
@@ -162,9 +167,10 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
             result_msg = await message.answer_photo(
                 BufferedInputFile(result_bytes, filename=f"photo_{i}.jpg")
             )
+            logger.info("User %s photo %s/%s sent", uid, i, len(prompts))
         except Exception:
-            logger.exception("Failed to send photo %s/%s to user %s", i, len(prompts), message.from_user.id)
-            await db.refund_credit(message.from_user.id, credit_type)
+            logger.exception("User %s failed to send photo %s/%s", uid, i, len(prompts))
+            await db.refund_credit(uid, credit_type)
             continue
 
         result_file_ids.append(result_msg.photo[-1].file_id)

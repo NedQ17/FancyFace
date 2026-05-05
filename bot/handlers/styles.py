@@ -147,12 +147,17 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
     if custom_addition:
         prompt = f"{prompt}. Additional user request: {custom_addition}."
 
+    uid = message.from_user.id
+    logger.info("User %s generation started style_id=%s", uid, style_id)
     try:
         face_url = await upload_photo(photo_bytes)
+        logger.info("User %s photo uploaded", uid)
         result_url = await generate_portrait(face_url, prompt, style.get("scenes") or [])
+        logger.info("User %s generation done, downloading result", uid)
         result_bytes = await download_image(result_url)
+        logger.info("User %s result downloaded (%d bytes)", uid, len(result_bytes))
     except GenerationError as exc:
-        logger.error("Generation failed for user %s, style %s: %s", message.from_user.id, style_id, exc)
+        logger.error("User %s generation failed style_id=%s: %s", uid, style_id, exc)
         await db.fail_generation(gen_id)
         await db.refund_credit(message.from_user.id, credit_type)
         await status_msg.edit_text(
@@ -167,6 +172,7 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
         reply_markup=after_style_kb(style_id),
     )
     await status_msg.delete()
+    logger.info("User %s result sent successfully style_id=%s", uid, style_id)
 
     file_id = result_msg.photo[-1].file_id
     await db.complete_generation(gen_id, [file_id], was_free)
