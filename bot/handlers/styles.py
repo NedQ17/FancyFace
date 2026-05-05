@@ -32,23 +32,26 @@ async def show_styles(callback: CallbackQuery, state: FSMContext) -> None:
     try:
         await callback.message.edit_text(
             "Выбери стиль для своего образа:",
-            reply_markup=styles_kb(styles, show_all=False),
+            reply_markup=styles_kb(styles, page=0),
         )
     except Exception:
         await callback.message.answer(
             "Выбери стиль для своего образа:",
-            reply_markup=styles_kb(styles, show_all=False),
+            reply_markup=styles_kb(styles, page=0),
         )
     await callback.answer()
 
 
-@router.callback_query(F.data == "style:more")
-async def show_more_styles(callback: CallbackQuery) -> None:
+@router.callback_query(F.data.startswith("style:page:"))
+async def styles_page(callback: CallbackQuery) -> None:
+    page = int(callback.data.split(":")[2])
     styles = await db.get_styles()
-    await callback.message.edit_text(
-        "Все доступные стили:",
-        reply_markup=styles_kb(styles, show_all=True),
-    )
+    await callback.message.edit_reply_markup(reply_markup=styles_kb(styles, page=page))
+    await callback.answer()
+
+
+@router.callback_query(F.data == "noop")
+async def noop(callback: CallbackQuery) -> None:
     await callback.answer()
 
 

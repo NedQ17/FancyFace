@@ -285,17 +285,18 @@ async def delete_style(style_id: int) -> None:
 async def ensure_default_styles(default_styles: list[dict]) -> None:
     pool = get_pool()
     async with pool.acquire() as conn:
-        count = await conn.fetchval("SELECT COUNT(*) FROM styles")
-        if count == 0:
-            await conn.executemany(
-                "INSERT INTO styles (name, emoji, prompt, scenes, sort_order) VALUES ($1, $2, $3, $4, $5)",
-                [(s["name"], s["emoji"], s["prompt"], s.get("scenes", []), s["sort_order"]) for s in default_styles],
-            )
-        else:
-            await conn.executemany(
-                "UPDATE styles SET prompt=$2, emoji=$3, scenes=$4 WHERE name=$1",
-                [(s["name"], s["prompt"], s["emoji"], s.get("scenes", [])) for s in default_styles],
-            )
+        existing = {r["name"] for r in await conn.fetch("SELECT name FROM styles")}
+        for s in default_styles:
+            if s["name"] in existing:
+                await conn.execute(
+                    "UPDATE styles SET prompt=$2, emoji=$3, scenes=$4, sort_order=$5 WHERE name=$1",
+                    s["name"], s["prompt"], s["emoji"], s.get("scenes", []), s["sort_order"],
+                )
+            else:
+                await conn.execute(
+                    "INSERT INTO styles (name, emoji, prompt, scenes, sort_order) VALUES ($1, $2, $3, $4, $5)",
+                    s["name"], s["emoji"], s["prompt"], s.get("scenes", []), s["sort_order"],
+                )
 
 
 # ─── Photo Sessions ───────────────────────────────────────────────────────────

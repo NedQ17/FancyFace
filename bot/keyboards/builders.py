@@ -2,7 +2,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bot.config import CHANNEL_URL, PACKAGES
-from bot.data.styles import FIRST_PAGE_COUNT
+from bot.data.styles import PAGE_SIZE
 
 
 def main_menu_kb() -> InlineKeyboardMarkup:
@@ -16,20 +16,23 @@ def main_menu_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
-def styles_kb(styles: list[dict], show_all: bool = False) -> InlineKeyboardMarkup:
+def styles_kb(styles: list[dict], page: int = 0) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    visible = styles if show_all else styles[:FIRST_PAGE_COUNT]
+    total_pages = max(1, (len(styles) + PAGE_SIZE - 1) // PAGE_SIZE)
+    page = max(0, min(page, total_pages - 1))
+    visible = styles[page * PAGE_SIZE:(page + 1) * PAGE_SIZE]
     for s in visible:
         label = f"{s['emoji']} {s['name']}" if s.get("emoji") else s["name"]
         builder.button(text=label, callback_data=f"style:select:{s['id']}")
     builder.adjust(2)
-    if not show_all and len(styles) > FIRST_PAGE_COUNT:
-        builder.row(
-            InlineKeyboardButton(text="Ещё стили...", callback_data="style:more")
-        )
-    builder.row(
-        InlineKeyboardButton(text="← Меню", callback_data="menu:back")
-    )
+    nav = []
+    if page > 0:
+        nav.append(InlineKeyboardButton(text="←", callback_data=f"style:page:{page - 1}"))
+    nav.append(InlineKeyboardButton(text=f"{page + 1} / {total_pages}", callback_data="noop"))
+    if page < total_pages - 1:
+        nav.append(InlineKeyboardButton(text="→", callback_data=f"style:page:{page + 1}"))
+    builder.row(*nav)
+    builder.row(InlineKeyboardButton(text="← Меню", callback_data="menu:back"))
     return builder.as_markup()
 
 

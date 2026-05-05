@@ -31,7 +31,11 @@ def _upload_sync(data: bytes, content_type: str = "image/jpeg") -> str:
 
 def _build_prompt(prompt: str, scenes: list[str]) -> str:
     scene = random.choice(scenes)
-    return f"{prompt}. Scene: {scene}."
+    return (
+        f"{prompt}. Scene: {scene}. "
+        "Preserve exact facial expression and emotion from the reference photo unchanged, "
+        "do not alter, enhance or exaggerate the expression."
+    )
 
 
 def _run_sync(prompt: str, face_url: str, scenes: list[str]) -> dict:
@@ -52,15 +56,20 @@ def _run_sync(prompt: str, face_url: str, scenes: list[str]) -> dict:
 
 async def upload_photo(photo_bytes: bytes) -> str:
     loop = asyncio.get_running_loop()
-    try:
-        return await asyncio.wait_for(
-            loop.run_in_executor(None, lambda: _upload_sync(photo_bytes)),
-            timeout=60.0,
-        )
-    except asyncio.TimeoutError:
-        raise GenerationError("Превышено время загрузки фото")
-    except Exception as e:
-        raise GenerationError(f"Ошибка загрузки фото: {e}") from e
+    last_exc: Exception | None = None
+    for attempt in range(3):
+        if attempt > 0:
+            await asyncio.sleep(2 ** attempt)
+        try:
+            return await asyncio.wait_for(
+                loop.run_in_executor(None, lambda: _upload_sync(photo_bytes)),
+                timeout=60.0,
+            )
+        except asyncio.TimeoutError:
+            raise GenerationError("Превышено время загрузки фото")
+        except Exception as e:
+            last_exc = e
+    raise GenerationError(f"Ошибка загрузки фото: {last_exc}") from last_exc
 
 
 async def generate_portrait(face_url: str, prompt: str, scenes: list[str] | None = None) -> str:

@@ -326,6 +326,31 @@ DEFAULT_STYLES: list[dict] = [
         ],
         "sort_order": 14,
     },
+    {
+        "name": "Селфи на улице",
+        "emoji": "🤳",
+        "prompt": (
+            "preserve exact facial identity from reference photo, same person, realistic facial proportions and natural skin texture, "
+            "preserve exact facial expression and emotion from reference photo unchanged, do not alter or exaggerate the expression, "
+            "take an extremely ordinary unremarkable iPhone selfie of this person on a city street at night, "
+            "no clear composition just a quick candid snapshot, "
+            "underexposed dark night atmosphere, low light conditions, visible digital noise and grain from high ISO, "
+            "slightly uneven mixed lighting from streetlights and phone screen glow, no studio lighting no flash, "
+            "muted desaturated night colors, low saturation, no vivid or oversaturated colors, no acid tones, not bright not contrasty, naturally dark shadows, "
+            "awkward angle and messy framing deliberately mediocre feel as if taken absentmindedly, "
+            "subject caught in a casual imperfect moment alone or with blurred strangers in background, "
+            "lively street at night with neon signs traffic and blurry figures passing by, "
+            "no smartphone no phone no device visible in hands, authentic vibe of a poorly composed spontaneous real iPhone night photo, photorealistic, high quality"
+        ),
+        "scenes": [
+            "holding phone at arm's length on a busy night street, neon signs behind",
+            "quick selfie outside a bar entrance, friends blurred in background",
+            "casual shot on a rainy city sidewalk, streetlights reflecting on wet pavement",
+            "spontaneous selfie at a crosswalk, cars and traffic lights in background",
+            "accidental-looking selfie near a convenience store at night, harsh overhead light",
+        ],
+        "sort_order": 15,
+    },
 ]
 
-FIRST_PAGE_COUNT = 10
+PAGE_SIZE = 8
