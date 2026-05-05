@@ -12,7 +12,8 @@
       "PowerShell(head -50)",
       "Bash(Get-ChildItem -Path \"c:\\\\FancyFaceBot\" -Recurse -File)",
       "Bash(Select-Object FullName)",
-      "Bash(Sort-Object FullName)"
+      "Bash(Sort-Object FullName)",
+      "Bash(Get-ChildItem -Path \"c:\\\\FancyFaceBot\" -Recurse -Name)"
     ]
   }
 }
