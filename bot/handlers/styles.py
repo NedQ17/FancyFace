@@ -141,7 +141,6 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
         gen_type="style",
         prompt=style["prompt"],
         style_id=style_id,
-        source_file_id=_get_file_id(message),
     )
 
     prompt = style["prompt"]

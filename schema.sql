@@ -44,7 +44,6 @@ CREATE TABLE IF NOT EXISTS generations (
     style_id        INTEGER REFERENCES styles(id),
     session_id      INTEGER REFERENCES photo_sessions(id),
     prompt          TEXT,
-    source_file_id  TEXT,
     result_file_ids TEXT[] NOT NULL DEFAULT '{}',
     status          TEXT NOT NULL DEFAULT 'pending',
     was_free        BOOLEAN NOT NULL DEFAULT FALSE,

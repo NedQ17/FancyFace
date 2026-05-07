@@ -352,16 +352,15 @@ async def create_generation(
     prompt: str,
     style_id: int | None = None,
     session_id: int | None = None,
-    source_file_id: str | None = None,
 ) -> int:
     pool = get_pool()
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
             """INSERT INTO generations
-               (user_id, gen_type, prompt, style_id, session_id, source_file_id)
-               VALUES ($1, $2, $3, $4, $5, $6)
+               (user_id, gen_type, prompt, style_id, session_id)
+               VALUES ($1, $2, $3, $4, $5)
                RETURNING id""",
-            user_id, gen_type, prompt, style_id, session_id, source_file_id,
+            user_id, gen_type, prompt, style_id, session_id,
         )
         return row["id"]
 

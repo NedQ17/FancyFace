@@ -686,7 +686,6 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
         user_id=uid,
         gen_type="custom",
         prompt=prompt,
-        source_file_id=_get_file_id(message),
     )
 
     logger.info("User %s custom generation started", uid)

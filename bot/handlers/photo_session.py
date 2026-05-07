@@ -143,7 +143,6 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
         gen_type="session",
         prompt=session["name"],
         session_id=session_id,
-        source_file_id=_get_file_id(message),
     )
 
     result_file_ids: list[str] = []
