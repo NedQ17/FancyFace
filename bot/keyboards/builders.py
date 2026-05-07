@@ -11,8 +11,9 @@ def main_menu_kb() -> InlineKeyboardMarkup:
     builder.button(text="✏️ Свой промпт",    callback_data="menu:custom")
     builder.button(text="💰 Мой баланс",     callback_data="menu:profile")
     builder.button(text="💳 Пополнить",      callback_data="menu:topup")
+    builder.button(text="ℹ️ Информация",     callback_data="menu:info")
     builder.button(text="📢 Канал с идеями", url=CHANNEL_URL)
-    builder.adjust(1, 1, 2, 1)
+    builder.adjust(1, 1, 2, 2)
     return builder.as_markup()
 
 

@@ -33,6 +33,17 @@ async def menu_back(callback: CallbackQuery, state: FSMContext) -> None:
     await show_main_menu(callback, state)
 
 
+@router.callback_query(F.data == "menu:info")
+async def menu_info(callback: CallbackQuery) -> None:
+    await callback.answer()
+    await callback.message.answer(
+        'Оферта и политика конфиденциальности сервиса:\n'
+        '<a href="https://avocadophotobot.github.io/legal/">avocadophotobot.github.io/legal</a>',
+        parse_mode="HTML",
+        disable_web_page_preview=True,
+    )
+
+
 @router.message(StateFilter(None), F.photo | F.document)
 async def fallback_photo(message: Message) -> None:
     await message.answer(
