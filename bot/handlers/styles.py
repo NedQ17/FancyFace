@@ -7,7 +7,8 @@ from aiogram.types import BufferedInputFile, CallbackQuery, Message
 
 from bot import database as db
 from bot.keyboards.builders import styles_kb, after_style_kb, paywall_kb, credits_empty_kb, cancel_kb, style_addition_kb
-from bot.services.generation import generate_portrait, upload_photo, download_image, GenerationError
+from bot.services.generation import generate_portrait, upload_photo, download_image, apply_watermark, GenerationError
+from bot.services import storage
 
 logger = logging.getLogger(__name__)
 from bot.states.flows import StyleFlow
@@ -167,12 +168,41 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
         return
 
     was_free = credit_type == "free"
-    result_msg = await message.answer_photo(
-        BufferedInputFile(result_bytes, filename="result.jpg"),
-        reply_markup=after_style_kb(style_id),
-    )
-    await status_msg.delete()
-    logger.info("User %s result sent successfully style_id=%s", uid, style_id)
+
+    if was_free:
+        watermarked_bytes = apply_watermark(result_bytes)
+        result_msg = await message.answer_photo(
+            BufferedInputFile(watermarked_bytes, filename="result.jpg"),
+        )
+        await status_msg.delete()
+        logger.info("User %s watermarked result sent style_id=%s", uid, style_id)
+
+        try:
+            storage_path = await storage.upload_clean_photo(uid, result_bytes)
+            await db.save_pending_unlock(uid, storage_path)
+            await message.answer(
+                "Нравится образ? ✨\n\n"
+                "Это пробная версия с водяным знаком.\n"
+                "Купи любой пакет — и получишь это фото <b>без водяного знака</b> автоматически.\n\n"
+                "<i>Фото хранится 24 часа.</i>",
+                parse_mode="HTML",
+                reply_markup=paywall_kb(),
+            )
+            logger.info("User %s clean photo uploaded to storage style_id=%s", uid, style_id)
+        except Exception:
+            logger.exception("User %s storage upload failed — sending clean image instead", uid)
+            await message.answer_photo(
+                BufferedInputFile(result_bytes, filename="result.jpg"),
+                caption="Готово! (не удалось сохранить для разблокировки — отправляем сразу)",
+                reply_markup=after_style_kb(style_id),
+            )
+    else:
+        result_msg = await message.answer_photo(
+            BufferedInputFile(result_bytes, filename="result.jpg"),
+            reply_markup=after_style_kb(style_id),
+        )
+        await status_msg.delete()
+        logger.info("User %s result sent successfully style_id=%s", uid, style_id)
 
     file_id = result_msg.photo[-1].file_id
     await db.complete_generation(gen_id, [file_id], was_free)

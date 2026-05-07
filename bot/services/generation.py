@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
+import io
+import math
 import os
 import random
 import fal_client
@@ -92,6 +94,57 @@ async def generate_portrait(face_url: str, prompt: str, scenes: list[str] | None
         return result["images"][0]["url"]
     except (KeyError, IndexError, TypeError) as e:
         raise GenerationError(f"Неожиданный ответ от сервиса генерации: {result}") from e
+
+
+def apply_watermark(image_bytes: bytes, text: str = "@Avocado_photo_bot") -> bytes:
+    import pathlib
+    from PIL import Image, ImageDraw, ImageFont
+
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGBA")
+    w, h = img.size
+
+    result = img.copy()
+
+    logo_path = pathlib.Path(__file__).parent.parent / "assets" / "logo.jpg"
+    if logo_path.exists():
+        logo = Image.open(logo_path).convert("RGBA")
+        logo_w = w
+        logo_h = int(logo.height * logo_w / logo.width)
+        logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
+        r, g, b, a = logo.split()
+        a = a.point(lambda v: int(v * 0.15))
+        logo = Image.merge("RGBA", (r, g, b, a))
+        result.paste(logo, ((w - logo_w) // 2, (h - logo_h) // 2), logo)
+
+    draw = ImageDraw.Draw(result)
+    font_size = max(24, w // 18)
+    font = None
+    for path in [
+        r"C:\Windows\Fonts\arial.ttf",
+        "arial.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+        "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+        "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
+    ]:
+        try:
+            font = ImageFont.truetype(path, font_size)
+            break
+        except Exception:
+            continue
+    if font is None:
+        font = ImageFont.load_default()
+
+    bbox = draw.textbbox((0, 0), text, font=font)
+    tw = bbox[2] - bbox[0]
+    th = bbox[3] - bbox[1]
+    tx = (w - tw) // 2
+    ty = h - th - max(20, h // 30)
+    draw.text((tx + 2, ty + 2), text, font=font, fill=(0, 0, 0, 100))
+    draw.text((tx, ty), text, font=font, fill=(255, 255, 255, 180))
+
+    buf = io.BytesIO()
+    result.convert("RGB").save(buf, format="JPEG", quality=92)
+    return buf.getvalue()
 
 
 async def download_image(image_url: str) -> bytes:

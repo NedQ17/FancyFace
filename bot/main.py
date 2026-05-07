@@ -75,18 +75,48 @@ async def main() -> None:
         BotCommand(command="pay",     description="Пополнить баланс"),
     ])
 
+    await _cleanup_expired_unlocks()
     reminder_task = asyncio.create_task(_paywall_reminder_loop(bot))
+    cleanup_task = asyncio.create_task(_cleanup_loop())
 
     logger.info("Bot started")
     try:
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
         reminder_task.cancel()
+        cleanup_task.cancel()
         with contextlib.suppress(asyncio.CancelledError):
             await reminder_task
+        with contextlib.suppress(asyncio.CancelledError):
+            await cleanup_task
         await close_pool()
         await bot.session.close()
         logger.info("Bot stopped")
+
+
+async def _cleanup_expired_unlocks() -> None:
+    from bot.database import get_expired_unlocks, delete_pending_unlock
+    from bot.services import storage
+
+    try:
+        expired = await get_expired_unlocks()
+        for record in expired:
+            uid, path = record["user_id"], record["file_id"]
+            try:
+                await storage.delete_clean_photo(path)
+            except Exception:
+                logger.warning("Could not delete storage file user=%s path=%s", uid, path)
+            await delete_pending_unlock(uid)
+        if expired:
+            logger.info("Cleaned up %d expired pending unlocks", len(expired))
+    except Exception:
+        logger.exception("Error during expired unlocks cleanup")
+
+
+async def _cleanup_loop() -> None:
+    while True:
+        await asyncio.sleep(3600)
+        await _cleanup_expired_unlocks()
 
 
 async def _paywall_reminder_loop(bot: Bot) -> None:

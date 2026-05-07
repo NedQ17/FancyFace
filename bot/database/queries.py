@@ -426,6 +426,44 @@ async def complete_payment(payment_id: int, telegram_payment_id: str) -> int:
             return row["credits"]
 
 
+# ─── Pending Unlocks ──────────────────────────────────────────────────────────
+
+async def get_expired_unlocks() -> list[dict]:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch(
+            "SELECT user_id, file_id FROM pending_unlocks WHERE created_at < NOW() - INTERVAL '24 hours'"
+        )
+        return [dict(r) for r in rows]
+
+
+async def save_pending_unlock(user_id: int, file_id: str) -> None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            """INSERT INTO pending_unlocks (user_id, file_id)
+               VALUES ($1, $2)
+               ON CONFLICT (user_id) DO UPDATE SET file_id = $2, created_at = NOW()""",
+            user_id, file_id,
+        )
+
+
+async def get_pending_unlock(user_id: int) -> str | None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        return await conn.fetchval(
+            "SELECT file_id FROM pending_unlocks WHERE user_id = $1", user_id
+        )
+
+
+async def delete_pending_unlock(user_id: int) -> None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "DELETE FROM pending_unlocks WHERE user_id = $1", user_id
+        )
+
+
 # ─── Referrals ────────────────────────────────────────────────────────────────
 
 async def record_referral(referrer_id: int, referred_id: int) -> bool:

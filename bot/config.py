@@ -33,8 +33,13 @@ if not SUPABASE_DB_URL:
         "SUPABASE_DB_URL is not configured. Copy .env.example to .env and set SUPABASE_DB_URL."
     )
 
+SUPABASE_URL: str = (
+    os.getenv("SUPABASE_URL", "").strip().rstrip("/").removesuffix("/rest/v1")
+)
+SUPABASE_SERVICE_KEY: str = os.getenv("SUPABASE_SERVICE_KEY", "").strip()
+
 WATERMARK_TEXT: str = f"@{BOT_USERNAME}"
-FREE_CREDITS_FOR_SUBSCRIPTION: int = 2
+FREE_CREDITS_FOR_SUBSCRIPTION: int = 1
 REFERRAL_CREDITS: int = 2
 
 PACKAGES: list[dict] = [

@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     subscription_bonus_claimed BOOLEAN NOT NULL DEFAULT FALSE,
     paywall_shown_at   TIMESTAMPTZ,
     paywall_reminder_sent BOOLEAN NOT NULL DEFAULT FALSE,
-    referrer_id BIGINT REFERENCES users(user_id),
+    referrer_id BIGINT REFERENCES users(user_id) ON DELETE SET NULL,
     is_blocked  BOOLEAN NOT NULL DEFAULT FALSE,
     created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS photo_sessions (
 
 CREATE TABLE IF NOT EXISTS generations (
     id              BIGSERIAL PRIMARY KEY,
-    user_id         BIGINT NOT NULL REFERENCES users(user_id),
+    user_id         BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     gen_type        TEXT NOT NULL,
     style_id        INTEGER REFERENCES styles(id),
     session_id      INTEGER REFERENCES photo_sessions(id),
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS generations (
 
 CREATE TABLE IF NOT EXISTS payments (
     id                  SERIAL PRIMARY KEY,
-    user_id             BIGINT NOT NULL REFERENCES users(user_id),
+    user_id             BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     package_id          TEXT NOT NULL,
     credits             INTEGER NOT NULL,
     amount_kopecks      INTEGER NOT NULL,
@@ -64,9 +64,16 @@ CREATE TABLE IF NOT EXISTS payments (
 
 CREATE TABLE IF NOT EXISTS referrals (
     id          SERIAL PRIMARY KEY,
-    referrer_id BIGINT NOT NULL REFERENCES users(user_id),
-    referred_id BIGINT NOT NULL UNIQUE REFERENCES users(user_id),
+    referrer_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    referred_id BIGINT NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
     credited_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS pending_unlocks (
+    id          SERIAL PRIMARY KEY,
+    user_id     BIGINT NOT NULL UNIQUE REFERENCES users(user_id) ON DELETE CASCADE,
+    file_id     TEXT NOT NULL,
+    created_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX IF NOT EXISTS idx_generations_user_id ON generations(user_id);

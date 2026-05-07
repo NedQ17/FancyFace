@@ -4,12 +4,13 @@ from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.types import (
-    CallbackQuery, Message, LabeledPrice, PreCheckoutQuery,
+    BufferedInputFile, CallbackQuery, Message, LabeledPrice, PreCheckoutQuery,
 )
 
 from bot import database as db
 from bot.config import PACKAGES, PAYMENT_PROVIDER_TOKEN
 from bot.keyboards.builders import paywall_kb, after_payment_kb, back_to_menu_kb
+from bot.services import storage
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -132,7 +133,7 @@ async def pre_checkout(query: PreCheckoutQuery) -> None:
 
 
 @router.message(F.successful_payment)
-async def successful_payment(message: Message) -> None:
+async def successful_payment(message: Message, bot: Bot) -> None:
     uid = message.from_user.id
     payload = message.successful_payment.invoice_payload
     telegram_payment_id = message.successful_payment.telegram_payment_charge_id
@@ -165,3 +166,21 @@ async def successful_payment(message: Message) -> None:
         parse_mode="HTML",
         reply_markup=after_payment_kb(),
     )
+
+    try:
+        storage_path = await db.get_pending_unlock(uid)
+        if storage_path:
+            try:
+                clean_bytes = await storage.download_clean_photo(storage_path)
+                await message.answer_photo(
+                    BufferedInputFile(clean_bytes, filename="result.jpg"),
+                    caption="Вот твоё фото без водяного знака! 🎉",
+                )
+                logger.info("User %s pending clean photo delivered", uid)
+            except Exception:
+                logger.exception("User %s failed to download clean photo from storage path=%s", uid, storage_path)
+            finally:
+                await storage.delete_clean_photo(storage_path)
+                await db.delete_pending_unlock(uid)
+    except Exception:
+        logger.exception("User %s failed to deliver pending clean photo", uid)

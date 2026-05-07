@@ -42,3 +42,6 @@ desktop.ini
 htmlcov/
 .coverage
 coverage.xml
+
+legal/
+.claude/

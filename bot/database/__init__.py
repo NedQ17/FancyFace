@@ -34,6 +34,10 @@ from bot.database.queries import (
     fail_generation,
     create_payment,
     complete_payment,
+    get_expired_unlocks,
+    save_pending_unlock,
+    get_pending_unlock,
+    delete_pending_unlock,
     record_referral,
     get_referral_count,
 )
@@ -51,5 +55,6 @@ __all__ = [
     "get_sessions", "get_session", "add_session", "ensure_default_sessions",
     "create_generation", "complete_generation", "fail_generation",
     "create_payment", "complete_payment",
+    "get_expired_unlocks", "save_pending_unlock", "get_pending_unlock", "delete_pending_unlock",
     "record_referral", "get_referral_count",
 ]
