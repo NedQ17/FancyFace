@@ -112,7 +112,7 @@ def apply_watermark(image_bytes: bytes, text: str = "@Avocado_photo_bot") -> byt
         logo_h = int(logo.height * logo_w / logo.width)
         logo = logo.resize((logo_w, logo_h), Image.LANCZOS)
         r, g, b, a = logo.split()
-        a = a.point(lambda v: int(v * 0.15))
+        a = a.point(lambda v: int(v * 0.20))
         logo = Image.merge("RGBA", (r, g, b, a))
         result.paste(logo, ((w - logo_w) // 2, (h - logo_h) // 2), logo)
 
