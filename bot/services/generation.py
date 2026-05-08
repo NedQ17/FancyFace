@@ -117,28 +117,39 @@ def apply_watermark(image_bytes: bytes, text: str = "@Avocado_photo_bot") -> byt
         result.paste(logo, ((w - logo_w) // 2, (h - logo_h) // 2), logo)
 
     draw = ImageDraw.Draw(result)
-    font_size = max(48, w // 6)
-    font = None
-    for path in [
+    font_paths = [
         r"C:\Windows\Fonts\arial.ttf",
         "arial.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
         "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
         "/usr/share/fonts/truetype/freefont/FreeSansBold.ttf",
-    ]:
+    ]
+    font_path = None
+    for path in font_paths:
         try:
-            font = ImageFont.truetype(path, font_size)
+            ImageFont.truetype(path, 10)
+            font_path = path
             break
         except Exception:
             continue
-    if font is None:
-        font = ImageFont.load_default()
+
+    max_text_w = int(w * 0.85)
+    font_size = w // 8
+    while font_size > 16:
+        if font_path:
+            font = ImageFont.truetype(font_path, font_size)
+        else:
+            font = ImageFont.load_default()
+        bbox = draw.textbbox((0, 0), text, font=font)
+        if bbox[2] - bbox[0] <= max_text_w:
+            break
+        font_size -= 2
 
     bbox = draw.textbbox((0, 0), text, font=font)
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
     tx = (w - tw) // 2
-    ty = (h - th) // 2
+    ty = h - th - max(16, h // 35)
     draw.text((tx + 2, ty + 2), text, font=font, fill=(0, 0, 0, 120))
     draw.text((tx, ty), text, font=font, fill=(255, 255, 255, 200))
 
