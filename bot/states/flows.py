@@ -48,3 +48,5 @@ class AdminFlow(StatesGroup):
     editing_style_name = State()
     editing_style_emoji = State()
     editing_style_prompt = State()
+    playground_prompt = State()
+    playground_photo = State()

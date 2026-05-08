@@ -230,15 +230,28 @@ async def get_admin_stats() -> dict:
 
 # ─── Styles ───────────────────────────────────────────────────────────────────
 
-async def get_styles(active_only: bool = True) -> list[dict]:
+async def get_styles(active_only: bool = True, listed_only: bool = True, newest_first: bool = False) -> list[dict]:
     pool = get_pool()
     async with pool.acquire() as conn:
-        q = "SELECT * FROM styles"
+        conditions = []
         if active_only:
-            q += " WHERE is_active=TRUE"
-        q += " ORDER BY sort_order, id"
+            conditions.append("is_active=TRUE")
+        if listed_only:
+            conditions.append("show_in_list=TRUE")
+        q = "SELECT * FROM styles"
+        if conditions:
+            q += " WHERE " + " AND ".join(conditions)
+        q += " ORDER BY id DESC" if newest_first else " ORDER BY sort_order, id"
         rows = await conn.fetch(q)
         return [dict(r) for r in rows]
+
+
+async def update_style_visibility(style_id: int, show_in_list: bool) -> None:
+    pool = get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE styles SET show_in_list=$2 WHERE id=$1", style_id, show_in_list
+        )
 
 
 async def get_style(style_id: int) -> dict | None:

@@ -26,6 +26,22 @@ PHOTO_TIPS = (
 )
 
 
+async def launch_style_for_message(message: Message, state: FSMContext, style_id: int) -> None:
+    style = await db.get_style(style_id)
+    if not style:
+        from bot.keyboards.builders import main_menu_kb
+        await message.answer("Стиль не найден.", reply_markup=main_menu_kb())
+        return
+    await state.set_state(StyleFlow.waiting_custom_addition)
+    await state.update_data(style_id=style_id, custom_addition=None)
+    label = f"{style['emoji']} {style['name']}" if style.get("emoji") else style["name"]
+    await message.answer(
+        f"Стиль: <b>{label}</b>\n\n{ADDITION_QUESTION}",
+        parse_mode="HTML",
+        reply_markup=style_addition_kb(),
+    )
+
+
 @router.callback_query(F.data == "menu:styles")
 async def show_styles(callback: CallbackQuery, state: FSMContext) -> None:
     await state.clear()

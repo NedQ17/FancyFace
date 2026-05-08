@@ -1,19 +1,21 @@
 import asyncio
+import io
 import re
 from datetime import datetime, timedelta, timezone
 
 from aiogram import Router, F, Bot
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import BufferedInputFile, Message, CallbackQuery
 
 from bot import database as db
-from bot.config import ADMIN_IDS, PACKAGES
+from bot.config import ADMIN_IDS, BOT_USERNAME, PACKAGES
 from bot.keyboards.builders import (
     admin_menu_kb, admin_confirm_broadcast_kb, admin_cancel_kb,
     admin_sales_period_kb, admin_sales_back_kb,
-    admin_styles_kb, admin_style_edit_kb, admin_style_delete_confirm_kb,
+    admin_styles_menu_kb, admin_styles_kb, admin_style_edit_kb, admin_style_delete_confirm_kb,
 )
+from bot.services.generation import generate_portrait, upload_photo, download_image, GenerationError
 from bot.states.flows import AdminFlow
 
 router = Router()
@@ -40,11 +42,19 @@ async def cmd_admin(message: Message, state: FSMContext) -> None:
 @router.callback_query(F.data == "admin:cancel")
 async def admin_cancel(callback: CallbackQuery, state: FSMContext) -> None:
     await state.clear()
-    await callback.message.edit_text(
-        "👑 <b>Панель администратора</b>",
-        parse_mode="HTML",
-        reply_markup=admin_menu_kb(),
-    )
+    try:
+        await callback.message.edit_text(
+            "👑 <b>Панель администратора</b>",
+            parse_mode="HTML",
+            reply_markup=admin_menu_kb(),
+        )
+    except Exception:
+        await callback.message.delete()
+        await callback.message.answer(
+            "👑 <b>Панель администратора</b>",
+            parse_mode="HTML",
+            reply_markup=admin_menu_kb(),
+        )
     await callback.answer()
 
 
@@ -316,12 +326,10 @@ async def admin_block_user(message: Message, state: FSMContext) -> None:
 
 # ─── Styles editor ────────────────────────────────────────────────────────────
 
-async def _show_styles_list(target, state: FSMContext) -> None:
-    """Show styles tile. target is either CallbackQuery or Message."""
+async def _show_styles_submenu(target, state: FSMContext) -> None:
     await state.clear()
-    styles = await db.get_styles(active_only=False)
-    text = "🎨 <b>Редактирование стилей</b>\n\nВыбери стиль для изменения или добавь новый:"
-    kb = admin_styles_kb(styles)
+    text = "🎨 <b>Стили</b>\n\nВыбери раздел:"
+    kb = admin_styles_menu_kb()
     if isinstance(target, CallbackQuery):
         await target.message.edit_text(text, parse_mode="HTML", reply_markup=kb)
         await target.answer()
@@ -331,7 +339,51 @@ async def _show_styles_list(target, state: FSMContext) -> None:
 
 @router.callback_query(F.data == "admin:styles")
 async def admin_styles(callback: CallbackQuery, state: FSMContext) -> None:
-    await _show_styles_list(callback, state)
+    await _show_styles_submenu(callback, state)
+
+
+@router.callback_query(F.data == "admin:styles:bot")
+async def admin_styles_bot(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.clear()
+    styles = await db.get_styles(active_only=False, listed_only=True)
+    await callback.message.edit_text(
+        "🎨 <b>Стили бота</b>\n\nВыбери стиль для изменения:",
+        parse_mode="HTML",
+        reply_markup=admin_styles_kb(styles, page=0, section="bot"),
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data == "admin:styles:channel")
+async def admin_styles_channel(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.clear()
+    all_styles = await db.get_styles(active_only=False, listed_only=False, newest_first=True)
+    styles = [s for s in all_styles if not s.get("show_in_list", True)]
+    await callback.message.edit_text(
+        "📢 <b>Стили для канала</b>\n\nВыбери стиль для изменения:",
+        parse_mode="HTML",
+        reply_markup=admin_styles_kb(styles, page=0, section="channel"),
+    )
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("admin:styles:bot:page:"))
+async def admin_styles_bot_page(callback: CallbackQuery, state: FSMContext) -> None:
+    page = int(callback.data.split(":")[4])
+    await state.clear()
+    styles = await db.get_styles(active_only=False, listed_only=True)
+    await callback.message.edit_reply_markup(reply_markup=admin_styles_kb(styles, page=page, section="bot"))
+    await callback.answer()
+
+
+@router.callback_query(F.data.startswith("admin:styles:channel:page:"))
+async def admin_styles_channel_page(callback: CallbackQuery, state: FSMContext) -> None:
+    page = int(callback.data.split(":")[4])
+    await state.clear()
+    all_styles = await db.get_styles(active_only=False, listed_only=False, newest_first=True)
+    styles = [s for s in all_styles if not s.get("show_in_list", True)]
+    await callback.message.edit_reply_markup(reply_markup=admin_styles_kb(styles, page=page, section="channel"))
+    await callback.answer()
 
 
 # ─── Style: view & edit menu ──────────────────────────────────────────────────
@@ -473,12 +525,11 @@ async def admin_style_delete(callback: CallbackQuery) -> None:
         style = await db.get_style(style_id)
         name = style["name"] if style else f"id={style_id}"
         await db.delete_style(style_id)
-        styles = await db.get_styles(active_only=False)
         await callback.message.edit_text(
             f"🗑 Стиль «{name}» удалён.\n\n"
-            "🎨 <b>Редактирование стилей</b>\n\nВыбери стиль для изменения или добавь новый:",
+            "🎨 <b>Стили</b>\n\nВыбери раздел:",
             parse_mode="HTML",
-            reply_markup=admin_styles_kb(styles),
+            reply_markup=admin_styles_menu_kb(),
         )
     else:
         style_id = int(parts[3])
@@ -492,6 +543,49 @@ async def admin_style_delete(callback: CallbackQuery) -> None:
             reply_markup=admin_style_delete_confirm_kb(style_id),
         )
     await callback.answer()
+
+
+# ─── Style: toggle visibility ────────────────────────────────────────────────
+
+@router.callback_query(F.data.startswith("admin:style:visibility:"))
+async def admin_style_toggle_visibility(callback: CallbackQuery) -> None:
+    style_id = int(callback.data.split(":")[3])
+    style = await db.get_style(style_id)
+    if not style:
+        await callback.answer("Стиль не найден.", show_alert=True)
+        return
+    new_visibility = not style.get("show_in_list", True)
+    await db.update_style_visibility(style_id, new_visibility)
+    style = await db.get_style(style_id)
+    status = "виден в списке" if new_visibility else "скрыт из списка"
+    await callback.answer(f"Стиль теперь {status}.", show_alert=False)
+    prompt_preview = (style["prompt"] or "")[:80]
+    if len(style["prompt"] or "") > 80:
+        prompt_preview += "…"
+    text = (
+        f"✏️ <b>{style['name']}</b>\n\n"
+        f"<i>Промпт:</i> {prompt_preview}"
+    )
+    await callback.message.edit_text(text, parse_mode="HTML", reply_markup=admin_style_edit_kb(style))
+
+
+# ─── Style: deep link ────────────────────────────────────────────────────────
+
+@router.callback_query(F.data.startswith("admin:style:link:"))
+async def admin_style_show_link(callback: CallbackQuery) -> None:
+    style_id = int(callback.data.split(":")[3])
+    style = await db.get_style(style_id)
+    if not style:
+        await callback.answer("Стиль не найден.", show_alert=True)
+        return
+    link = f"https://t.me/{BOT_USERNAME}?start=style_{style_id}"
+    await callback.answer()
+    await callback.message.answer(
+        f"🔗 Ссылка для стиля <b>{style['name']}</b>:\n\n"
+        f"<code>{link}</code>\n\n"
+        "Скопируй и вставь в пост канала.",
+        parse_mode="HTML",
+    )
 
 
 # ─── Style: add new ───────────────────────────────────────────────────────────
@@ -532,4 +626,66 @@ async def admin_style_new_prompt(message: Message, state: FSMContext) -> None:
     )
     await state.clear()
     await message.answer(f"✅ Стиль «{data['style_name']}» добавлен (id={style_id}).")
-    await _show_styles_list(message, state)
+    await _show_styles_submenu(message, state)
+
+
+# ─── Playground ───────────────────────────────────────────────────────────────
+
+@router.callback_query(F.data == "admin:playground")
+async def admin_playground_start(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.set_state(AdminFlow.playground_prompt)
+    await callback.message.edit_text(
+        "🧪 <b>Playground</b>\n\n"
+        "Введи промпт на английском.\n"
+        "Можно вставить готовый или написать с нуля.",
+        parse_mode="HTML",
+        reply_markup=admin_cancel_kb(),
+    )
+    await callback.answer()
+
+
+@router.message(AdminFlow.playground_prompt, F.text)
+async def admin_playground_prompt(message: Message, state: FSMContext) -> None:
+    await state.update_data(playground_prompt=message.text.strip())
+    await state.set_state(AdminFlow.playground_photo)
+    await message.answer(
+        "Теперь отправь фото (selfie или портрет).",
+        reply_markup=admin_cancel_kb(),
+    )
+
+
+@router.message(AdminFlow.playground_photo, F.photo | F.document)
+async def admin_playground_photo(message: Message, state: FSMContext, bot: Bot) -> None:
+    data = await state.get_data()
+    prompt = data["playground_prompt"]
+    await state.clear()
+
+    status_msg = await message.answer("Генерирую... ⏳")
+
+    try:
+        if message.photo:
+            file = await bot.get_file(message.photo[-1].file_id)
+        elif message.document and (message.document.mime_type or "").startswith("image/"):
+            file = await bot.get_file(message.document.file_id)
+        else:
+            await status_msg.edit_text("Нужно фото или изображение.")
+            return
+        buf = io.BytesIO()
+        await bot.download_file(file.file_path, destination=buf)
+        photo_bytes = buf.getvalue()
+    except Exception:
+        await status_msg.edit_text("Не удалось прочитать фото.")
+        return
+
+    try:
+        face_url = await upload_photo(photo_bytes)
+        result_url = await generate_portrait(face_url, prompt)
+        result_bytes = await download_image(result_url)
+    except GenerationError as exc:
+        await status_msg.edit_text(f"Ошибка генерации: {exc}")
+        return
+
+    await status_msg.delete()
+    await message.answer_photo(
+        BufferedInputFile(result_bytes, filename="result.jpg"),
+    )

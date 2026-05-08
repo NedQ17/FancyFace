@@ -344,28 +344,59 @@ def admin_menu_kb() -> InlineKeyboardMarkup:
     builder.button(text="💳 Начислить кредиты", callback_data="admin:add_credits")
     builder.button(text="🚫 Заблокировать",     callback_data="admin:block")
     builder.button(text="🎨 Стили",             callback_data="admin:styles")
+    builder.button(text="🧪 Playground",        callback_data="admin:playground")
     builder.adjust(2)
     return builder.as_markup()
 
 
-def admin_styles_kb(styles: list[dict]) -> InlineKeyboardMarkup:
+ADMIN_STYLES_PAGE_SIZE = 10
+
+
+def admin_styles_menu_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    for s in styles:
+    builder.button(text="🎨 Стили бота",       callback_data="admin:styles:bot")
+    builder.button(text="📢 Стили для канала", callback_data="admin:styles:channel")
+    builder.row(InlineKeyboardButton(text="← Назад", callback_data="admin:cancel"))
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+ADMIN_STYLES_PAGE_SIZE = 10
+
+
+def admin_styles_kb(styles: list[dict], page: int = 0, section: str = "bot") -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    total_pages = max(1, (len(styles) + ADMIN_STYLES_PAGE_SIZE - 1) // ADMIN_STYLES_PAGE_SIZE)
+    page = max(0, min(page, total_pages - 1))
+    visible = styles[page * ADMIN_STYLES_PAGE_SIZE:(page + 1) * ADMIN_STYLES_PAGE_SIZE]
+    for s in visible:
         label = f"{s['emoji']} {s['name']}" if s.get("emoji") else s["name"]
         builder.button(text=label, callback_data=f"admin:style:edit:{s['id']}")
     builder.adjust(2)
+    nav = []
+    if page > 0:
+        nav.append(InlineKeyboardButton(text="←", callback_data=f"admin:styles:{section}:page:{page - 1}"))
+    nav.append(InlineKeyboardButton(text=f"{page + 1}/{total_pages}", callback_data="noop"))
+    if page < total_pages - 1:
+        nav.append(InlineKeyboardButton(text="→", callback_data=f"admin:styles:{section}:page:{page + 1}"))
+    if nav:
+        builder.row(*nav)
     builder.row(InlineKeyboardButton(text="➕ Добавить новый стиль", callback_data="admin:style:add"))
-    builder.row(InlineKeyboardButton(text="← Назад", callback_data="admin:cancel"))
+    builder.row(InlineKeyboardButton(text="← Назад", callback_data="admin:styles"))
     return builder.as_markup()
 
 
 def admin_style_edit_kb(style: dict) -> InlineKeyboardMarkup:
     sid = style["id"]
     emoji_display = style.get("emoji") or "—"
+    show_in_list = style.get("show_in_list", True)
+    visibility_label = "👁 В списке: ДА" if show_in_list else "🙈 В списке: НЕТ"
     builder = InlineKeyboardBuilder()
     builder.button(text=f"📝 Название: {style['name']}", callback_data=f"admin:style:name:{sid}")
     builder.button(text=f"🎭 Эмодзи: {emoji_display}",  callback_data=f"admin:style:emoji:{sid}")
     builder.button(text="📄 Редактировать промпт",        callback_data=f"admin:style:prompt:{sid}")
+    builder.button(text=visibility_label,                  callback_data=f"admin:style:visibility:{sid}")
+    builder.button(text="🔗 Ссылка для канала",           callback_data=f"admin:style:link:{sid}")
     builder.button(text="🗑 Удалить стиль",               callback_data=f"admin:style:delete:{sid}")
     builder.button(text="← К стилям",                    callback_data="admin:styles")
     builder.adjust(1)

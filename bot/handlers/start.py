@@ -6,7 +6,7 @@ import logging
 
 from bot import database as db
 from bot.config import BOT_USERNAME, FREE_CREDITS_FOR_SUBSCRIPTION, REFERRAL_CREDITS
-from bot.keyboards.builders import main_menu_kb, subscribe_kb
+from bot.keyboards.builders import main_menu_kb, subscribe_kb, paywall_kb
 from bot.services.subscription import is_subscribed
 
 logger = logging.getLogger(__name__)
@@ -50,11 +50,18 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 
     args = message.text.split(maxsplit=1)[1] if " " in message.text else ""
     referrer_id: int | None = None
+    pending_style_id: int | None = None
+
     if args.startswith("ref_"):
         try:
             ref = int(args[4:])
             if ref != message.from_user.id:
                 referrer_id = ref
+        except ValueError:
+            pass
+    elif args.startswith("style_"):
+        try:
+            pending_style_id = int(args[6:])
         except ValueError:
             pass
 
@@ -68,15 +75,29 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
     if user.get("is_blocked"):
         return
 
-    # Returning user (already went through onboarding)
+    # Returning user
     if user.get("subscription_bonus_claimed") or user.get("total_generated", 0) > 0 or user.get("paid_credits", 0) > 0:
+        if pending_style_id:
+            total = (user.get("paid_credits") or 0) + (user.get("free_credits") or 0)
+            if total >= 1:
+                from bot.handlers.styles import launch_style_for_message
+                await launch_style_for_message(message, state, pending_style_id)
+            else:
+                await message.answer(
+                    "Для генерации нужны кредиты. Пополни баланс:",
+                    reply_markup=paywall_kb(),
+                )
+            return
         await message.answer(
             "Добро пожаловать! Выбери, что хочешь сделать.",
             reply_markup=main_menu_kb(),
         )
         return
 
-    # New user — show onboarding
+    # New user — save pending style, show onboarding
+    if pending_style_id:
+        await state.update_data(pending_style_id=pending_style_id)
+
     if user.get("channel_subscribed"):
         await message.answer(ALREADY_SUBSCRIBED_TEXT, reply_markup=main_menu_kb())
         return
@@ -90,7 +111,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
 
 
 @router.callback_query(F.data == "subscribe:check")
-async def check_subscription(callback: CallbackQuery, bot: Bot) -> None:
+async def check_subscription(callback: CallbackQuery, bot: Bot, state: FSMContext) -> None:
     user_id = callback.from_user.id
     logger.info(f"Checking subscription for user {user_id}")
 
@@ -101,8 +122,15 @@ async def check_subscription(callback: CallbackQuery, bot: Bot) -> None:
 
     if user.get("channel_subscribed"):
         logger.info(f"User {user_id} already marked as subscribed in DB")
+        data = await state.get_data()
+        pending_style_id = data.get("pending_style_id")
         await callback.message.delete()
-        await callback.message.answer(ALREADY_SUBSCRIBED_TEXT, reply_markup=main_menu_kb())
+        if pending_style_id:
+            from bot.handlers.styles import launch_style_for_message
+            await callback.message.answer(ALREADY_SUBSCRIBED_TEXT)
+            await launch_style_for_message(callback.message, state, pending_style_id)
+        else:
+            await callback.message.answer(ALREADY_SUBSCRIBED_TEXT, reply_markup=main_menu_kb())
         await callback.answer()
         return
 
@@ -144,6 +172,13 @@ async def check_subscription(callback: CallbackQuery, bot: Bot) -> None:
                 pass
 
     response_text = SUBSCRIPTION_SUCCESS_TEXT if bonus_claimed else RESUBSCRIBED_TEXT
+    data = await state.get_data()
+    pending_style_id = data.get("pending_style_id")
     await callback.message.delete()
-    await callback.message.answer(response_text, parse_mode="HTML", reply_markup=main_menu_kb())
+    if pending_style_id:
+        await callback.message.answer(response_text, parse_mode="HTML")
+        from bot.handlers.styles import launch_style_for_message
+        await launch_style_for_message(callback.message, state, pending_style_id)
+    else:
+        await callback.message.answer(response_text, parse_mode="HTML", reply_markup=main_menu_kb())
     await callback.answer()
