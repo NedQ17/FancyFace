@@ -2,8 +2,15 @@ import hashlib
 from urllib.parse import urlencode
 
 from bot.config import (
-    ROBOKASSA_LOGIN, ROBOKASSA_PASSWORD1, ROBOKASSA_PASSWORD2, ROBOKASSA_IS_TEST,
+    ROBOKASSA_LOGIN,
+    ROBOKASSA_PASSWORD1, ROBOKASSA_PASSWORD2,
+    ROBOKASSA_TEST_PASSWORD1, ROBOKASSA_TEST_PASSWORD2,
+    ROBOKASSA_IS_TEST,
 )
+
+# В тестовом режиме используются отдельные тестовые пароли (см. Технические настройки Robokassa)
+_pwd1 = ROBOKASSA_TEST_PASSWORD1 if ROBOKASSA_IS_TEST else ROBOKASSA_PASSWORD1
+_pwd2 = ROBOKASSA_TEST_PASSWORD2 if ROBOKASSA_IS_TEST else ROBOKASSA_PASSWORD2
 
 _PAYMENT_URL = "https://auth.robokassa.ru/Merchant/Index.aspx"
 
@@ -17,7 +24,7 @@ def build_payment_url(payment_id: int, amount_rub: float, description: str, user
     inv_id = str(payment_id)
     shp_uid = str(user_id)
 
-    sig_str = f"{ROBOKASSA_LOGIN}:{out_sum}:{inv_id}:{ROBOKASSA_PASSWORD1}:Shp_uid={shp_uid}"
+    sig_str = f"{ROBOKASSA_LOGIN}:{out_sum}:{inv_id}:{_pwd1}:Shp_uid={shp_uid}"
     signature = _md5(sig_str)
 
     params: dict = {
@@ -36,5 +43,5 @@ def build_payment_url(payment_id: int, amount_rub: float, description: str, user
 
 
 def verify_result(out_sum: str, inv_id: str, signature: str, shp_uid: str) -> bool:
-    sig_str = f"{out_sum}:{inv_id}:{ROBOKASSA_PASSWORD2}:Shp_uid={shp_uid}"
+    sig_str = f"{out_sum}:{inv_id}:{_pwd2}:Shp_uid={shp_uid}"
     return _md5(sig_str) == signature.upper()

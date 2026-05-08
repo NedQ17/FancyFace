@@ -29,6 +29,9 @@ if not FAL_KEY:
 ROBOKASSA_LOGIN: str = os.getenv("ROBOKASSA_LOGIN", "").strip()
 ROBOKASSA_PASSWORD1: str = os.getenv("ROBOKASSA_PASSWORD1", "").strip()
 ROBOKASSA_PASSWORD2: str = os.getenv("ROBOKASSA_PASSWORD2", "").strip()
+# Тестовые пароли — отдельный набор из Технических настроек Robokassa (не совпадают с боевыми)
+ROBOKASSA_TEST_PASSWORD1: str = os.getenv("ROBOKASSA_TEST_PASSWORD1", "").strip()
+ROBOKASSA_TEST_PASSWORD2: str = os.getenv("ROBOKASSA_TEST_PASSWORD2", "").strip()
 ROBOKASSA_IS_TEST: bool = os.getenv("ROBOKASSA_IS_TEST", "1") == "1"
 ROBOKASSA_RESULT_URL: str = os.getenv("ROBOKASSA_RESULT_URL", "").strip()
 WEBHOOK_PORT: int = int(os.getenv("WEBHOOK_PORT", "8080"))
