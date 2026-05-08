@@ -117,7 +117,7 @@ def apply_watermark(image_bytes: bytes, text: str = "@Avocado_photo_bot") -> byt
         result.paste(logo, ((w - logo_w) // 2, (h - logo_h) // 2), logo)
 
     draw = ImageDraw.Draw(result)
-    font_size = max(24, w // 18)
+    font_size = max(36, w // 10)
     font = None
     for path in [
         r"C:\Windows\Fonts\arial.ttf",
@@ -138,9 +138,9 @@ def apply_watermark(image_bytes: bytes, text: str = "@Avocado_photo_bot") -> byt
     tw = bbox[2] - bbox[0]
     th = bbox[3] - bbox[1]
     tx = (w - tw) // 2
-    ty = h - th - max(20, h // 30)
-    draw.text((tx + 2, ty + 2), text, font=font, fill=(0, 0, 0, 100))
-    draw.text((tx, ty), text, font=font, fill=(255, 255, 255, 180))
+    ty = (h - th) // 2
+    draw.text((tx + 2, ty + 2), text, font=font, fill=(0, 0, 0, 120))
+    draw.text((tx, ty), text, font=font, fill=(255, 255, 255, 200))
 
     buf = io.BytesIO()
     result.convert("RGB").save(buf, format="JPEG", quality=92)
