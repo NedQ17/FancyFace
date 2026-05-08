@@ -18,7 +18,19 @@
       "Bash(git -C c:\\\\FancyFaceBot status)",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "WebFetch(domain:docs.robokassa.ru)",
+      "WebFetch(domain:docs.robokassa.kz)",
+      "WebFetch(domain:robokassa.com)",
+      "WebFetch(domain:pypi.org)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:robokassa.readthedocs.io)",
+      "WebFetch(domain:docs.carbonsoft.ru)",
+      "WebFetch(domain:falcon.web-automation.ru)",
+      "WebFetch(domain:misha.agency)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(Get-ChildItem -Path \"c:\\\\FancyFaceBot\" -Force)",
+      "Bash(Select-Object Name, Mode)"
     ],
     "additionalDirectories": [
       "c:\\FancyFaceBot"

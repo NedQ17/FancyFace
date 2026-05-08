@@ -26,7 +26,13 @@ if not FAL_KEY:
         "FAL_KEY is not configured. Copy .env.example to .env and set FAL_KEY."
     )
 
-PAYMENT_PROVIDER_TOKEN: str = os.getenv("PAYMENT_PROVIDER_TOKEN", "").strip()
+ROBOKASSA_LOGIN: str = os.getenv("ROBOKASSA_LOGIN", "").strip()
+ROBOKASSA_PASSWORD1: str = os.getenv("ROBOKASSA_PASSWORD1", "").strip()
+ROBOKASSA_PASSWORD2: str = os.getenv("ROBOKASSA_PASSWORD2", "").strip()
+ROBOKASSA_IS_TEST: bool = os.getenv("ROBOKASSA_IS_TEST", "1") == "1"
+ROBOKASSA_RESULT_URL: str = os.getenv("ROBOKASSA_RESULT_URL", "").strip()
+WEBHOOK_PORT: int = int(os.getenv("WEBHOOK_PORT", "8080"))
+
 SUPABASE_DB_URL: str = os.getenv("SUPABASE_DB_URL", "").strip()
 if not SUPABASE_DB_URL:
     raise RuntimeError(

@@ -10,7 +10,10 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import BotCommand
 
-from bot.config import BOT_TOKEN, ADMIN_IDS
+from aiohttp import web
+
+from bot.config import BOT_TOKEN, ADMIN_IDS, WEBHOOK_PORT, SUPABASE_URL, SUPABASE_SERVICE_KEY
+from bot.webhook_server import create_app
 from bot.database.pool import init_pool, close_pool
 from bot.database import ensure_default_styles, ensure_default_sessions
 from bot.data.styles import DEFAULT_STYLES
@@ -51,6 +54,11 @@ async def main() -> None:
     )
     dp = Dispatcher(storage=MemoryStorage())
 
+    if not SUPABASE_URL or not SUPABASE_SERVICE_KEY:
+        logger.warning("SUPABASE_URL or SUPABASE_SERVICE_KEY is not set — storage for pending unlocks will not work!")
+    else:
+        logger.info("Supabase Storage configured: %s", SUPABASE_URL)
+
     # Проверим, что бот администратор канала
     if not await is_bot_admin(bot):
         logger.error("Bot is not admin in the channel! Subscription checking will not work.")
@@ -75,6 +83,13 @@ async def main() -> None:
         BotCommand(command="pay",     description="Пополнить баланс"),
     ])
 
+    webhook_app = create_app(bot)
+    runner = web.AppRunner(webhook_app)
+    await runner.setup()
+    site = web.TCPSite(runner, "0.0.0.0", WEBHOOK_PORT)
+    await site.start()
+    logger.info("Robokassa webhook server started on port %d", WEBHOOK_PORT)
+
     await _cleanup_expired_unlocks()
     reminder_task = asyncio.create_task(_paywall_reminder_loop(bot))
     cleanup_task = asyncio.create_task(_cleanup_loop())
@@ -89,6 +104,7 @@ async def main() -> None:
             await reminder_task
         with contextlib.suppress(asyncio.CancelledError):
             await cleanup_task
+        await runner.cleanup()
         await close_pool()
         await bot.session.close()
         logger.info("Bot stopped")
