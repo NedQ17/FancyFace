@@ -520,8 +520,8 @@ async def admin_style_prompt_save(message: Message, state: FSMContext) -> None:
 async def admin_style_delete(callback: CallbackQuery) -> None:
     parts = callback.data.split(":")
     # distinguish "admin:style:delete:{id}" from "admin:style:delete:confirm:{id}"
-    if parts[4] == "confirm":
-        style_id = int(parts[5])
+    if parts[3] == "confirm":
+        style_id = int(parts[4])
         style = await db.get_style(style_id)
         name = style["name"] if style else f"id={style_id}"
         await db.delete_style(style_id)
@@ -590,9 +590,11 @@ async def admin_style_show_link(callback: CallbackQuery) -> None:
 
 # ─── Style: add new ───────────────────────────────────────────────────────────
 
-@router.callback_query(F.data == "admin:style:add")
+@router.callback_query(F.data.startswith("admin:style:add:"))
 async def admin_add_style_start(callback: CallbackQuery, state: FSMContext) -> None:
+    section = callback.data.split(":")[3]  # "bot" or "channel"
     await state.set_state(AdminFlow.adding_style_name)
+    await state.update_data(adding_style_section=section)
     await callback.message.edit_text(
         "Введи название нового стиля:", reply_markup=admin_cancel_kb()
     )
@@ -619,10 +621,12 @@ async def admin_style_new_emoji(message: Message, state: FSMContext) -> None:
 @router.message(AdminFlow.adding_style_prompt, F.text)
 async def admin_style_new_prompt(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
+    show_in_list = data.get("adding_style_section", "bot") == "bot"
     style_id = await db.add_style(
         name=data["style_name"],
         emoji=data["style_emoji"],
         prompt=message.text.strip(),
+        show_in_list=show_in_list,
     )
     await state.clear()
     await message.answer(f"✅ Стиль «{data['style_name']}» добавлен (id={style_id}).")

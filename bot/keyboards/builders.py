@@ -381,7 +381,7 @@ def admin_styles_kb(styles: list[dict], page: int = 0, section: str = "bot") -> 
         nav.append(InlineKeyboardButton(text="→", callback_data=f"admin:styles:{section}:page:{page + 1}"))
     if nav:
         builder.row(*nav)
-    builder.row(InlineKeyboardButton(text="➕ Добавить новый стиль", callback_data="admin:style:add"))
+    builder.row(InlineKeyboardButton(text="➕ Добавить новый стиль", callback_data=f"admin:style:add:{section}"))
     builder.row(InlineKeyboardButton(text="← Назад", callback_data="admin:styles"))
     return builder.as_markup()
 

@@ -261,12 +261,12 @@ async def get_style(style_id: int) -> dict | None:
         return dict(row) if row else None
 
 
-async def add_style(name: str, emoji: str, prompt: str) -> int:
+async def add_style(name: str, emoji: str, prompt: str, show_in_list: bool = True) -> int:
     pool = get_pool()
     async with pool.acquire() as conn:
         row = await conn.fetchrow(
-            "INSERT INTO styles (name, emoji, prompt) VALUES ($1, $2, $3) RETURNING id",
-            name, emoji, prompt,
+            "INSERT INTO styles (name, emoji, prompt, show_in_list) VALUES ($1, $2, $3, $4) RETURNING id",
+            name, emoji, prompt, show_in_list,
         )
         return row["id"]
 
