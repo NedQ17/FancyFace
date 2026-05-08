@@ -28,7 +28,7 @@ DEFAULT_STYLES: list[dict] = [
             "shot on 50mm or 85mm lens, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 1,
+        "sort_order": 5,
     },
     {
         "name": "Кинематографичный",
@@ -43,7 +43,7 @@ DEFAULT_STYLES: list[dict] = [
             "storytelling composition suggesting a scene from a prestige drama, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 2,
+        "sort_order": 8,
     },
     {
         "name": "Русский стиль",
@@ -58,7 +58,7 @@ DEFAULT_STYLES: list[dict] = [
             "warm earthy tones and golden ambient lighting or soft natural daylight, rich folk textures and materials, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 3,
+        "sort_order": 9,
     },
     {
         "name": "90-е",
@@ -78,7 +78,7 @@ DEFAULT_STYLES: list[dict] = [
             "90s youth culture atmosphere, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 4,
+        "sort_order": 6,
     },
     {
         "name": "День рождения",
@@ -92,7 +92,7 @@ DEFAULT_STYLES: list[dict] = [
             "spontaneous candid atmosphere, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 5,
+        "sort_order": 7,
     },
     {
         "name": "Новый год",
@@ -106,7 +106,7 @@ DEFAULT_STYLES: list[dict] = [
             "photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 6,
+        "sort_order": 10,
     },
     {
         "name": "Зима",
@@ -121,7 +121,7 @@ DEFAULT_STYLES: list[dict] = [
             "serene winter atmosphere, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 7,
+        "sort_order": 11,
     },
     {
         "name": "Фэнтези",
@@ -137,7 +137,7 @@ DEFAULT_STYLES: list[dict] = [
             "rich jewel-tone palette, cinematic fantasy realism at the level of high-end film production, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 8,
+        "sort_order": 12,
     },
     {
         "name": "Чёрно-белый",
@@ -152,7 +152,7 @@ DEFAULT_STYLES: list[dict] = [
             "emotional depth and timeless composition, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 9,
+        "sort_order": 2,
     },
     {
         "name": "Пляж",
@@ -167,7 +167,7 @@ DEFAULT_STYLES: list[dict] = [
             "natural relaxed coastal atmosphere, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 10,
+        "sort_order": 13,
     },
     {
         "name": "Ретро",
@@ -182,7 +182,7 @@ DEFAULT_STYLES: list[dict] = [
             "nostalgic 1970s atmosphere, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 11,
+        "sort_order": 14,
     },
     {
         "name": "Люкс",
@@ -197,7 +197,7 @@ DEFAULT_STYLES: list[dict] = [
             "cinematic soft lighting with elegant reflections, sophisticated understated luxury aesthetic, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 12,
+        "sort_order": 1,
     },
     {
         "name": "Студия",
@@ -212,7 +212,7 @@ DEFAULT_STYLES: list[dict] = [
             "clean commercial portrait quality with sharp facial detail, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 13,
+        "sort_order": 3,
     },
     {
         "name": "Арт",
@@ -227,7 +227,7 @@ DEFAULT_STYLES: list[dict] = [
             "inspired by modern fine art photography, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 14,
+        "sort_order": 15,
     },
     {
         "name": "Детство нулевых",
@@ -261,7 +261,7 @@ DEFAULT_STYLES: list[dict] = [
             "no smartphone no phone no device visible in hands, authentic vibe of a poorly composed spontaneous real iPhone night photo, photorealistic, high quality"
         ),
         "scenes": [],
-        "sort_order": 15,
+        "sort_order": 4,
     },
 ]
 

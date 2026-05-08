@@ -73,7 +73,6 @@ BACKGROUND_MAP = {
     "studio":   ("Студия",      "clean professional studio seamless backdrop"),
     "city":     ("Город",       "dynamic urban cityscape environment"),
     "nature":   ("Природа",     "natural outdoor organic lush environment"),
-    "street":   ("Улица",       "urban street outdoor setting"),
     "interior": ("Интерьер",    "elegant architectural interior setting"),
     "blurred":  ("Размытый фон","soft bokeh blurred background, subject in sharp focus"),
 }
