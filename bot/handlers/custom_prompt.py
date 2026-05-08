@@ -671,7 +671,7 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
         await db.mark_paywall_shown(message.from_user.id)
         return
 
-    status_msg = await message.answer("Генерирую твой образ, подожди 20–30 секунд... ⏳")
+    status_msg = await message.answer("Генерирую твой образ, скоро будет готово... ⏳")
     await state.clear()
 
     photo_bytes = await _get_photo_bytes(message, bot)

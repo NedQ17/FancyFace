@@ -16,7 +16,7 @@ router = Router()
 WELCOME_TEXT = (
     "Привет! Это <b>Авокадо Фотостудия</b> — бот, который делает профессиональные "
     "AI-фото с твоим лицом.\n\n"
-    "Загрузи своё фото, выбери образ — и получи крутой результат за 20–30 секунд. "
+    "Загрузи своё фото, выбери образ — и получи крутой результат. "
     "Никакого фотографа, никакого фоторедактора.\n\n"
     "🎁 <b>Подпишись на наш канал с идеями и промптами</b> — "
     f"и получи <b>{FREE_CREDITS_FOR_SUBSCRIPTION} бесплатные генерации</b>!"
@@ -172,13 +172,6 @@ async def check_subscription(callback: CallbackQuery, bot: Bot, state: FSMContex
                 pass
 
     response_text = SUBSCRIPTION_SUCCESS_TEXT if bonus_claimed else RESUBSCRIBED_TEXT
-    data = await state.get_data()
-    pending_style_id = data.get("pending_style_id")
     await callback.message.delete()
-    if pending_style_id:
-        await callback.message.answer(response_text, parse_mode="HTML")
-        from bot.handlers.styles import launch_style_for_message
-        await launch_style_for_message(callback.message, state, pending_style_id)
-    else:
-        await callback.message.answer(response_text, parse_mode="HTML", reply_markup=main_menu_kb())
+    await callback.message.answer(response_text, parse_mode="HTML", reply_markup=main_menu_kb())
     await callback.answer()
