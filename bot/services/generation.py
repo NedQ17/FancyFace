@@ -117,7 +117,7 @@ def apply_watermark(image_bytes: bytes, text: str = "@Avocado_photo_bot") -> byt
         result.paste(logo, ((w - logo_w) // 2, (h - logo_h) // 2), logo)
 
     draw = ImageDraw.Draw(result)
-    font_size = max(36, w // 10)
+    font_size = max(48, w // 6)
     font = None
     for path in [
         r"C:\Windows\Fonts\arial.ttf",
