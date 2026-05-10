@@ -162,7 +162,7 @@ async def check_subscription(callback: CallbackQuery, bot: Bot, state: FSMContex
                         await bot.send_message(
                             referrer_id,
                             f"🎉 По твоей ссылке зарегистрировался новый пользователь! "
-                            f"Тебе начислено <b>{REFERRAL_CREDITS} кредита</b>.",
+                            f"Тебе начислен <b>{REFERRAL_CREDITS} кредит</b>.",
                             parse_mode="HTML",
                         )
                     except Exception:
