@@ -49,7 +49,7 @@ SUPABASE_SERVICE_KEY: str = os.getenv("SUPABASE_SERVICE_KEY", "").strip()
 
 WATERMARK_TEXT: str = f"@{BOT_USERNAME}"
 FREE_CREDITS_FOR_SUBSCRIPTION: int = 1
-REFERRAL_CREDITS: int = 2
+REFERRAL_CREDITS: int = 1
 
 PACKAGES: list[dict] = [
     {"id": "mini",     "credits": 5,   "price_rub": 139, "label": "5 фото — 139 ₽"},

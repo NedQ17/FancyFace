@@ -41,16 +41,20 @@ async def get_user(user_id: int) -> dict | None:
 
 
 async def get_total_credits(user: dict) -> int:
-    return (user.get("paid_credits") or 0) + (user.get("free_credits") or 0)
+    return (
+        (user.get("paid_credits") or 0)
+        + (user.get("bonus_credits") or 0)
+        + (user.get("free_credits") or 0)
+    )
 
 
 async def consume_credit(user_id: int) -> str:
-    """Deducts one credit. Returns 'paid' or 'free'. Raises ValueError if none."""
+    """Deducts one credit. Returns 'paid', 'bonus', or 'free'. Raises ValueError if none."""
     pool = get_pool()
     async with pool.acquire() as conn:
         async with conn.transaction():
             row = await conn.fetchrow(
-                "SELECT paid_credits, free_credits FROM users WHERE user_id=$1 FOR UPDATE",
+                "SELECT paid_credits, bonus_credits, free_credits FROM users WHERE user_id=$1 FOR UPDATE",
                 user_id,
             )
             if row["paid_credits"] >= 1:
@@ -59,6 +63,12 @@ async def consume_credit(user_id: int) -> str:
                     user_id,
                 )
                 return "paid"
+            if row["bonus_credits"] >= 1:
+                await conn.execute(
+                    "UPDATE users SET bonus_credits = bonus_credits - 1 WHERE user_id=$1",
+                    user_id,
+                )
+                return "bonus"
             if row["free_credits"] >= 1:
                 await conn.execute(
                     "UPDATE users SET free_credits = free_credits - 1 WHERE user_id=$1",
@@ -75,21 +85,26 @@ async def refund_credit(user_id: int, credit_type: str) -> None:
             await conn.execute(
                 "UPDATE users SET paid_credits = paid_credits + 1 WHERE user_id=$1", user_id
             )
+        elif credit_type == "bonus":
+            await conn.execute(
+                "UPDATE users SET bonus_credits = bonus_credits + 1 WHERE user_id=$1", user_id
+            )
         else:
             await conn.execute(
                 "UPDATE users SET free_credits = free_credits + 1 WHERE user_id=$1", user_id
             )
 
 
-async def add_credits(user_id: int, paid: int = 0, free: int = 0) -> None:
+async def add_credits(user_id: int, paid: int = 0, bonus: int = 0, free: int = 0) -> None:
     pool = get_pool()
     async with pool.acquire() as conn:
         await conn.execute(
             """UPDATE users
-               SET paid_credits = paid_credits + $2,
-                   free_credits = free_credits + $3
+               SET paid_credits  = paid_credits  + $2,
+                   bonus_credits = bonus_credits + $3,
+                   free_credits  = free_credits  + $4
                WHERE user_id=$1""",
-            user_id, paid, free,
+            user_id, paid, bonus, free,
         )
 
 
@@ -149,6 +164,7 @@ async def get_pending_paywall_reminders() -> list[int]:
                  AND paywall_shown_at < NOW() - INTERVAL '24 hours'
                  AND paywall_reminder_sent = FALSE
                  AND paid_credits = 0
+                 AND bonus_credits = 0
                  AND is_blocked = FALSE"""
         )
         return [r["user_id"] for r in rows]
@@ -422,7 +438,7 @@ async def create_payment(
 
 
 async def complete_payment(payment_id: int, telegram_payment_id: str) -> int:
-    """Marks payment complete and returns credited amount."""
+    """Marks payment complete, credits paid credits, converts trial free_credits to bonus."""
     pool = get_pool()
     async with pool.acquire() as conn:
         async with conn.transaction():
@@ -432,7 +448,11 @@ async def complete_payment(payment_id: int, telegram_payment_id: str) -> int:
                 payment_id, telegram_payment_id,
             )
             await conn.execute(
-                "UPDATE users SET paid_credits = paid_credits + $2 WHERE user_id=$1",
+                """UPDATE users
+                   SET paid_credits  = paid_credits + $2,
+                       bonus_credits = bonus_credits + free_credits,
+                       free_credits  = 0
+                   WHERE user_id=$1""",
                 row["user_id"], row["credits"],
             )
             return row["credits"]

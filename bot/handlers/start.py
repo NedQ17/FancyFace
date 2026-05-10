@@ -78,7 +78,7 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
     # Returning user
     if user.get("subscription_bonus_claimed") or user.get("total_generated", 0) > 0 or user.get("paid_credits", 0) > 0:
         if pending_style_id:
-            total = (user.get("paid_credits") or 0) + (user.get("free_credits") or 0)
+            total = (user.get("paid_credits") or 0) + (user.get("bonus_credits") or 0) + (user.get("free_credits") or 0)
             if total >= 1:
                 from bot.handlers.styles import launch_style_for_message
                 await launch_style_for_message(message, state, pending_style_id)
@@ -157,8 +157,7 @@ async def check_subscription(callback: CallbackQuery, bot: Bot, state: FSMContex
             try:
                 created = await db.record_referral(referrer_id, user_id)
                 if created:
-                    await db.add_credits(referrer_id, paid=REFERRAL_CREDITS)
-                    await db.add_credits(user_id, paid=REFERRAL_CREDITS)
+                    await db.add_credits(referrer_id, bonus=REFERRAL_CREDITS)
                     try:
                         await bot.send_message(
                             referrer_id,

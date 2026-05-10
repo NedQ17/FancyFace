@@ -128,7 +128,7 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
     if not user:
         return
 
-    total = (user["paid_credits"] or 0) + (user["free_credits"] or 0)
+    total = (user["paid_credits"] or 0) + (user["bonus_credits"] or 0) + (user["free_credits"] or 0)
     if total < 1:
         await state.clear()
         await message.answer(
@@ -182,7 +182,7 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
         )
         return
 
-    was_free = credit_type == "free"
+    was_free = (credit_type == "free")
 
     if was_free:
         watermarked_bytes = apply_watermark(result_bytes)

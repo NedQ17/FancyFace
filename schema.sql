@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     username    TEXT,
     first_name  TEXT NOT NULL DEFAULT '',
     paid_credits  INTEGER NOT NULL DEFAULT 0,
+    bonus_credits INTEGER NOT NULL DEFAULT 0,
     free_credits  INTEGER NOT NULL DEFAULT 0,
     total_generated INTEGER NOT NULL DEFAULT 0,
     channel_subscribed BOOLEAN NOT NULL DEFAULT FALSE,

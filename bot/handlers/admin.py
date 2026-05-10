@@ -285,9 +285,9 @@ async def admin_credits_amount(message: Message, state: FSMContext) -> None:
     if not user:
         await message.answer("Пользователь не найден.", reply_markup=admin_menu_kb())
     else:
-        await db.add_credits(uid, paid=amount)
+        await db.add_credits(uid, bonus=amount)
         await message.answer(
-            f"✅ Начислено {amount} кредитов пользователю {uid}.",
+            f"✅ Начислено {amount} бонусных кредитов пользователю {uid}.",
             reply_markup=admin_menu_kb(),
         )
     await state.clear()

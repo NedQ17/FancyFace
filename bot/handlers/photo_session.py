@@ -66,7 +66,7 @@ async def session_start(callback: CallbackQuery, state: FSMContext) -> None:
         return
 
     user = await db.get_user(callback.from_user.id)
-    total = (user["paid_credits"] or 0) + (user["free_credits"] or 0)
+    total = (user["paid_credits"] or 0) + (user["bonus_credits"] or 0) + (user["free_credits"] or 0)
     needed = session["photo_count"]
 
     if total < needed:
@@ -101,7 +101,7 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
 
     user = await db.get_user(message.from_user.id)
     needed = session["photo_count"]
-    total = (user["paid_credits"] or 0) + (user["free_credits"] or 0)
+    total = (user["paid_credits"] or 0) + (user["bonus_credits"] or 0) + (user["free_credits"] or 0)
 
     if total < needed:
         await state.clear()

@@ -661,7 +661,7 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
     prompt: str = data.get("prompt", "photorealistic portrait, high quality")
 
     user = await db.get_user(message.from_user.id)
-    total = (user["paid_credits"] or 0) + (user["free_credits"] or 0)
+    total = (user["paid_credits"] or 0) + (user["bonus_credits"] or 0) + (user["free_credits"] or 0)
     if total < 1:
         await state.clear()
         await message.answer(

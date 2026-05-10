@@ -14,12 +14,22 @@ async def _build_profile_text(user_id: int) -> str:
     if not user:
         return "Профиль не найден."
     paid = user.get("paid_credits") or 0
+    bonus = user.get("bonus_credits") or 0
     free = user.get("free_credits") or 0
-    total_credits = paid + free
+    total_credits = paid + bonus + free
     total_gen = user.get("total_generated") or 0
     created = user["created_at"].strftime("%d.%m.%Y") if user.get("created_at") else "—"
     ref_count = await db.get_referral_count(user_id)
-    credit_detail = f" (из них {free} бесплатных)" if free > 0 else ""
+
+    parts = []
+    if paid > 0:
+        parts.append(f"{paid} купленных")
+    if bonus > 0:
+        parts.append(f"{bonus} бонусных")
+    if free > 0:
+        parts.append(f"{free} пробных")
+    credit_detail = f" ({', '.join(parts)})" if parts else ""
+
     return (
         f"👤 <b>Мой профиль</b>\n\n"
         f"💳 Кредитов: <b>{total_credits}</b>{credit_detail}\n"
