@@ -37,7 +37,7 @@ async def menu_back(callback: CallbackQuery, state: FSMContext) -> None:
 async def menu_info(callback: CallbackQuery) -> None:
     await callback.answer()
     await callback.message.answer(
-        'Оферта и политика конфиденциальности сервиса:\n'
+        'Контакты, оферта, политика обработки персональных данных сервиса:\n'
         '<a href="https://avocadophotobot.github.io/legal/">avocadophotobot.github.io/legal</a>',
         parse_mode="HTML",
         disable_web_page_preview=True,
