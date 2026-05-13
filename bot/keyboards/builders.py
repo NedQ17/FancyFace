@@ -8,12 +8,13 @@ from bot.data.styles import PAGE_SIZE
 def main_menu_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="🎨 Выбрать стиль",  callback_data="menu:styles")
+    builder.button(text="🖼 Свой фон",       callback_data="menu:background")
     builder.button(text="✏️ Свой промпт",    callback_data="menu:custom")
     builder.button(text="💰 Мой баланс",     callback_data="menu:profile")
     builder.button(text="💳 Пополнить",      callback_data="menu:topup")
     builder.button(text="ℹ️ Информация",     callback_data="menu:info")
     builder.button(text="📢 Идеи", url=CHANNEL_URL)
-    builder.adjust(1, 1, 2, 2)
+    builder.adjust(2, 1, 2, 2)
     return builder.as_markup()
 
 
@@ -34,6 +35,35 @@ def styles_kb(styles: list[dict], page: int = 0) -> InlineKeyboardMarkup:
         nav.append(InlineKeyboardButton(text="→", callback_data=f"style:page:{page + 1}"))
     builder.row(*nav)
     builder.row(InlineKeyboardButton(text="← Меню", callback_data="menu:back"))
+    return builder.as_markup()
+
+
+def merge_styles_kb(styles: list[dict], page: int = 0) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    total_pages = max(1, (len(styles) + PAGE_SIZE - 1) // PAGE_SIZE)
+    page = max(0, min(page, total_pages - 1))
+    visible = styles[page * PAGE_SIZE:(page + 1) * PAGE_SIZE]
+    for s in visible:
+        label = f"{s['emoji']} {s['name']}" if s.get("emoji") else s["name"]
+        builder.button(text=label, callback_data=f"merge:style:{s['id']}")
+    builder.adjust(2)
+    nav = []
+    if page > 0:
+        nav.append(InlineKeyboardButton(text="←", callback_data=f"merge:page:{page - 1}"))
+    nav.append(InlineKeyboardButton(text=f"{page + 1} / {total_pages}", callback_data="noop"))
+    if page < total_pages - 1:
+        nav.append(InlineKeyboardButton(text="→", callback_data=f"merge:page:{page + 1}"))
+    builder.row(*nav)
+    builder.row(InlineKeyboardButton(text="← Меню", callback_data="menu:back"))
+    return builder.as_markup()
+
+
+def after_merge_kb(style_id: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🔄 Ещё раз в этом стиле", callback_data=f"style:retry:{style_id}")
+    builder.button(text="🎨 Другой стиль",          callback_data="menu:styles")
+    builder.button(text="🏠 Главное меню",          callback_data="menu:back")
+    builder.adjust(1)
     return builder.as_markup()
 
 
@@ -85,11 +115,12 @@ def custom_mode_kb() -> InlineKeyboardMarkup:
 
 def custom_gender_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="Женщина",    callback_data="custom:gender:female")
-    builder.button(text="Мужчина",    callback_data="custom:gender:male")
-    builder.button(text="Пропустить", callback_data="custom:gender:skip")
-    builder.button(text="← Назад",   callback_data="custom:back")
-    builder.adjust(2, 1, 1)
+    builder.button(text="Женщина",        callback_data="custom:gender:female")
+    builder.button(text="Мужчина",        callback_data="custom:gender:male")
+    builder.button(text="👥 Парное фото", callback_data="custom:gender:pair")
+    builder.button(text="Пропустить",     callback_data="custom:gender:skip")
+    builder.button(text="← Назад",        callback_data="custom:back")
+    builder.adjust(2, 2, 1)
     return builder.as_markup()
 
 
@@ -169,9 +200,10 @@ def custom_background_kb() -> InlineKeyboardMarkup:
     builder.button(text="Улица",           callback_data="custom:bg:street")
     builder.button(text="Интерьер",        callback_data="custom:bg:interior")
     builder.button(text="Размытый фон",    callback_data="custom:bg:blurred")
+    builder.button(text="📷 Своё фото",    callback_data="custom:bg:photo")
     builder.button(text="Описать самому",  callback_data="custom:bg:custom")
     builder.button(text="← Назад",        callback_data="custom:back")
-    builder.adjust(2, 2, 2, 1, 1)
+    builder.adjust(2, 2, 2, 2, 1)
     return builder.as_markup()
 
 
@@ -208,7 +240,7 @@ def custom_details_kb(selected: set[str]) -> InlineKeyboardMarkup:
     for key, label in DETAILS_OPTIONS:
         prefix = "✅ " if key in selected else ""
         builder.button(text=f"{prefix}{label}", callback_data=f"custom:detail:{key}")
-    next_label = "→ Далее" if selected - {"custom"} else "Пропустить"
+    next_label = "→ Далее" if selected else "Пропустить"
     builder.button(text=next_label, callback_data="custom:detail:done")
     builder.button(text="← Назад", callback_data="custom:back")
     builder.adjust(2, 2, 1, 1, 1)
@@ -244,6 +276,14 @@ def custom_review_kb() -> InlineKeyboardMarkup:
     builder.button(text="Сгенерировать", callback_data="custom:generate")
     builder.button(text="Начать заново", callback_data="custom:restart")
     builder.button(text="← Назад",      callback_data="custom:back")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def custom_extra_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Пропустить", callback_data="custom:extra:skip")
+    builder.button(text="← Назад",   callback_data="custom:back")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -312,6 +352,14 @@ def cancel_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+def photo_request_kb(style_id: int) -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="👥 Парное фото",  callback_data=f"style:pair:{style_id}")
+    builder.button(text="✖️ Отмена",       callback_data="menu:back")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
 def style_addition_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="Пропустить →", callback_data="style:skip_addition")
@@ -330,6 +378,14 @@ def paywall_reminder_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="💳 Пополнить баланс", callback_data="menu:topup")
     builder.button(text="🏠 В меню",           callback_data="menu:back")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def after_bg_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="🔄 Попробовать снова", callback_data="menu:background")
+    builder.button(text="🏠 Главное меню",      callback_data="menu:back")
     builder.adjust(1)
     return builder.as_markup()
 

@@ -1,5 +1,7 @@
+import asyncio
 import io
 import logging
+from collections import defaultdict
 
 from aiogram import Router, F, Bot
 from aiogram.fsm.context import FSMContext
@@ -10,14 +12,22 @@ from bot.keyboards.builders import (
     custom_mode_kb, custom_gender_kb, custom_category_kb, custom_framing_kb,
     custom_render_kb, custom_mood_kb, custom_clothing_kb, custom_clothing_type_kb,
     custom_background_kb, custom_lighting_kb, custom_details_kb, custom_restrictions_kb,
-    custom_era_kb, custom_review_kb, after_custom_kb, paywall_kb, credits_empty_kb, cancel_kb,
+    custom_era_kb, custom_review_kb, custom_extra_kb, after_custom_kb, paywall_kb,
+    credits_empty_kb, cancel_kb,
     DETAILS_OPTIONS, RESTRICTIONS_OPTIONS,
 )
-from bot.services.generation import generate_portrait, upload_photo, download_image, GenerationError
+from bot.services.generation import (
+    generate_portrait, generate_merge_portrait, upload_photo, download_image,
+    apply_watermark, GenerationError,
+)
+from bot.services import storage
 from bot.states.flows import CustomFlow
+from bot.utils import pending_paywall
 
 router = Router()
 logger = logging.getLogger(__name__)
+
+_media_group_locks: defaultdict[int, asyncio.Lock] = defaultdict(asyncio.Lock)
 
 TOTAL_STEPS = 11
 
@@ -25,15 +35,17 @@ PHOTO_TIPS = (
     "Почти готово! Осталось прислать своё фото.\n\n"
     "Для точной передачи черт лица используй чёткое портретное фото при хорошем освещении. "
     "Анфас или лёгкий поворот — лучший вариант.\n\n"
-    "<b>Без очков, без фильтров, без группового фото.</b>"
+    "<b>Без очков, без фильтров, без группового фото.</b>\n\n"
+    "<i>💡 Для парного фото — отправь два фото сразу.</i>"
 )
 
 # ─── Mappings ─────────────────────────────────────────────────────────────────
 
 GENDER_MAP = {
-    "female": ("Женщина", "woman"),
-    "male":   ("Мужчина", "man"),
-    "skip":   ("—", ""),
+    "female": ("Женщина",        "woman"),
+    "male":   ("Мужчина",        "man"),
+    "pair":   ("👥 Парное фото", ""),
+    "skip":   ("—",              ""),
 }
 CATEGORY_MAP = {
     "business":     ("Деловой",          "professional corporate business portrait"),
@@ -135,7 +147,9 @@ def _assemble_prompt(data: dict) -> str:
         parts.append(CLOTHING_MAP.get(clothing_key, CLOTHING_MAP["keep"])[1])
 
     bg_key = data.get("background", "")
-    if bg_key == "custom":
+    if bg_key == "photo":
+        pass  # background supplied as image via bg_url, not as prompt text
+    elif bg_key == "custom":
         parts.append(f"background: {data.get('background_custom', '')}")
     elif bg_key in BACKGROUND_MAP:
         parts.append(BACKGROUND_MAP[bg_key][1])
@@ -158,6 +172,8 @@ def _assemble_prompt(data: dict) -> str:
     if era_prompt:
         parts.append(era_prompt)
 
+    if data.get("extra_description"):
+        parts.append(data["extra_description"])
     parts.append("photorealistic, high quality, detailed")
     return ", ".join(p for p in parts if p)
 
@@ -183,7 +199,9 @@ def _describe_settings(data: dict) -> str:
             lines.append(f"Одежда: {CLOTHING_MAP.get(ctype, ('—',))[0]}")
 
     bg_key = data.get("background", "")
-    if bg_key == "custom":
+    if bg_key == "photo":
+        lines.append("Фон: 📷 Своё фото")
+    elif bg_key == "custom":
         lines.append(f"Фон: {data.get('background_custom', '—')}")
     else:
         lines.append(f"Фон: {BACKGROUND_MAP.get(bg_key, ('—',))[0]}")
@@ -217,6 +235,8 @@ def _step(n: int) -> str:
 
 @router.callback_query(F.data == "menu:custom")
 async def custom_entry(callback: CallbackQuery, state: FSMContext) -> None:
+    if await pending_paywall(callback):
+        return
     await state.clear()
     await callback.message.edit_text(
         "Как хочешь создать образ?", reply_markup=custom_mode_kb()
@@ -392,6 +412,9 @@ async def step7_background(callback: CallbackQuery, state: FSMContext) -> None:
             f"{_step(7)} — Опиши фон своими словами:",
             parse_mode="HTML", reply_markup=cancel_kb(),
         )
+    elif bg == "photo":
+        await state.update_data(background="photo")
+        await _go_to_lighting(callback, state)
     else:
         await state.update_data(background=bg)
         await _go_to_lighting(callback, state)
@@ -539,14 +562,69 @@ async def _show_review(callback: CallbackQuery, state: FSMContext) -> None:
     await callback.answer()
 
 
+_EXTRA_TEXT = (
+    "Хочешь добавить что-то конкретное к образу?\n\n"
+    "Например: <i>держит кофе</i>, <i>сидит на скамейке в парке</i>, "
+    "<i>смотрит в окно</i>\n\n"
+    "Напиши или нажми «Пропустить»."
+)
+
+
 @router.callback_query(F.data == "custom:generate")
 async def custom_generate(callback: CallbackQuery, state: FSMContext) -> None:
-    data = await state.get_data()
-    if "prompt" not in data:
-        await state.update_data(prompt=_assemble_prompt(data))
-    await state.set_state(CustomFlow.waiting_photo)
-    await callback.message.answer(PHOTO_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
+    await state.set_state(CustomFlow.step_extra)
+    try:
+        await callback.message.edit_text(_EXTRA_TEXT, parse_mode="HTML", reply_markup=custom_extra_kb())
+    except Exception:
+        await callback.message.answer(_EXTRA_TEXT, parse_mode="HTML", reply_markup=custom_extra_kb())
     await callback.answer()
+
+
+@router.message(CustomFlow.step_extra, F.text)
+async def step_extra_text(message: Message, state: FSMContext) -> None:
+    await state.update_data(extra_description=message.text.strip())
+    data = await state.get_data()
+    await state.update_data(prompt=_assemble_prompt(data))
+    await _go_to_photo_step(message, state)
+
+
+@router.callback_query(CustomFlow.step_extra, F.data == "custom:extra:skip")
+async def step_extra_skip(callback: CallbackQuery, state: FSMContext) -> None:
+    data = await state.get_data()
+    await state.update_data(prompt=_assemble_prompt(data))
+    await _go_to_photo_step(callback.message, state)
+    await callback.answer()
+
+
+async def _go_to_photo_step(msg: Message, state: FSMContext) -> None:
+    data = await state.get_data()
+    if data.get("background") == "photo":
+        await state.set_state(CustomFlow.waiting_bg_photo)
+        await msg.answer(
+            "Отправь фото фона — место или сцену, куда хочешь попасть.",
+            reply_markup=cancel_kb(),
+        )
+    else:
+        await state.set_state(CustomFlow.waiting_photo)
+        await msg.answer(PHOTO_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
+
+
+@router.message(CustomFlow.waiting_bg_photo, F.photo | F.document)
+async def custom_bg_photo_received(message: Message, state: FSMContext, bot: Bot) -> None:
+    photo_bytes = await _get_photo_bytes(message, bot)
+    if not photo_bytes:
+        await message.answer("Не удалось прочитать фото. Попробуй ещё раз.")
+        return
+    status_msg = await message.answer("Загружаю фото фона... ⏳")
+    try:
+        bg_url = await upload_photo(photo_bytes)
+    except GenerationError as exc:
+        await status_msg.edit_text(f"Ошибка загрузки: {exc}. Попробуй ещё раз.")
+        return
+    await status_msg.delete()
+    await state.update_data(bg_url=bg_url)
+    await state.set_state(CustomFlow.waiting_photo)
+    await message.answer(PHOTO_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
 
 
 # ─── Back navigation ─────────────────────────────────────────────────────────
@@ -642,6 +720,11 @@ async def custom_back(callback: CallbackQuery, state: FSMContext) -> None:
             f"{_step(11)} — Стиль эпохи:", parse_mode="HTML",
             reply_markup=custom_era_kb(),
         )
+    elif current == CustomFlow.step_extra:
+        await state.update_data(extra_description=None)
+        await state.set_state(CustomFlow.step_review)
+        desc = _describe_settings(data)
+        await callback.message.edit_text(desc, parse_mode="HTML", reply_markup=custom_review_kb())
 
     await callback.answer()
 
@@ -657,6 +740,11 @@ async def custom_regenerate(callback: CallbackQuery, state: FSMContext) -> None:
 
 @router.message(CustomFlow.waiting_photo, F.photo | F.document)
 async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -> None:
+    if message.media_group_id:
+        async with _media_group_locks[message.from_user.id]:
+            await _handle_media_group_custom(message, state, bot)
+        return
+
     data = await state.get_data()
     prompt: str = data.get("prompt", "photorealistic portrait, high quality")
 
@@ -687,11 +775,12 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
         prompt=prompt,
     )
 
+    bg_url = data.get("bg_url")
     logger.info("User %s custom generation started", uid)
     try:
         face_url = await upload_photo(photo_bytes)
         logger.info("User %s photo uploaded", uid)
-        result_url = await generate_portrait(face_url, prompt)
+        result_url = await generate_portrait(face_url, prompt, bg_url=bg_url)
         logger.info("User %s generation done, downloading result", uid)
         result_bytes = await download_image(result_url)
         logger.info("User %s result downloaded (%d bytes)", uid, len(result_bytes))
@@ -706,29 +795,154 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
 
     was_free = credit_type == "free"
 
-    try:
-        result_msg = await message.answer_photo(
-            BufferedInputFile(result_bytes, filename="result.jpg"),
-            reply_markup=after_custom_kb(),
-        )
-        logger.info("User %s result sent successfully", uid)
-    except Exception:
-        logger.exception("User %s failed to send result photo", uid)
-        await db.fail_generation(gen_id)
-        await db.refund_credit(uid, credit_type)
-        await status_msg.edit_text(
-            "Не удалось отправить изображение. Кредит не списан — попробуй ещё раз.",
-            reply_markup=after_custom_kb(),
-        )
-        return
+    if was_free:
+        watermarked = apply_watermark(result_bytes)
+        result_msg = await message.answer_photo(BufferedInputFile(watermarked, filename="result.jpg"))
+        await status_msg.delete()
+        logger.info("User %s watermarked result sent", uid)
+        try:
+            path = await storage.upload_clean_photo(uid, result_bytes)
+            await db.save_pending_unlock(uid, path)
+            await message.answer(
+                "Нравится образ? ✨\n\nЭто пробная версия с водяным знаком.\n"
+                "Купи любой пакет — и получишь фото <b>без водяного знака</b> автоматически.\n\n"
+                "<i>Фото хранится 24 часа.</i>",
+                parse_mode="HTML",
+                reply_markup=paywall_kb(),
+            )
+        except Exception:
+            logger.exception("User %s custom storage upload failed", uid)
+            await message.answer_photo(
+                BufferedInputFile(result_bytes, filename="result.jpg"),
+                reply_markup=after_custom_kb(),
+            )
+    else:
+        try:
+            result_msg = await message.answer_photo(
+                BufferedInputFile(result_bytes, filename="result.jpg"),
+                reply_markup=after_custom_kb(),
+            )
+            logger.info("User %s result sent successfully", uid)
+        except Exception:
+            logger.exception("User %s failed to send result photo", uid)
+            await db.fail_generation(gen_id)
+            await db.refund_credit(uid, credit_type)
+            await status_msg.edit_text(
+                "Не удалось отправить изображение. Кредит не списан — попробуй ещё раз.",
+                reply_markup=after_custom_kb(),
+            )
+            return
+        await status_msg.delete()
 
-    await status_msg.delete()
     file_id = result_msg.photo[-1].file_id
     await db.complete_generation(gen_id, [file_id], was_free)
     await state.update_data(prompt=prompt)
 
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
+
+async def _handle_media_group_custom(message: Message, state: FSMContext, bot: Bot) -> None:
+    data = await state.get_data()
+    prompt: str = data.get("prompt", "photorealistic portrait, high quality")
+    bg_url: str | None = data.get("bg_url")
+    face_url1: str | None = data.get("face_url1")
+    uid = message.from_user.id
+
+    if face_url1 and data.get("merge_group_id") == message.media_group_id:
+        # ── Second photo: generate merge ──────────────────────────────────────
+        await state.clear()
+
+        user = await db.get_user(uid)
+        if not user:
+            return
+        total = (user["paid_credits"] or 0) + (user["bonus_credits"] or 0) + (user["free_credits"] or 0)
+        if total < 1:
+            await message.answer("У тебя закончились кредиты. Пополни баланс.", reply_markup=credits_empty_kb())
+            await db.mark_paywall_shown(uid)
+            return
+
+        photo_bytes = await _get_photo_bytes(message, bot)
+        if not photo_bytes:
+            await message.answer("Не удалось прочитать второе фото. Попробуй ещё раз.", reply_markup=cancel_kb())
+            return
+
+        status_msg = await message.answer("Генерирую совместное фото, это займёт немного времени... ⏳")
+        try:
+            face_url2 = await upload_photo(photo_bytes)
+        except GenerationError as exc:
+            await status_msg.edit_text(f"Ошибка загрузки фото: {exc}. Попробуй ещё раз.")
+            return
+
+        credit_type = await db.consume_credit(uid)
+        gen_id = await db.create_generation(user_id=uid, gen_type="custom_merge", prompt=prompt)
+
+        try:
+            result_url = await generate_merge_portrait(face_url1, face_url2, prompt, bg_url=bg_url)
+            result_bytes = await download_image(result_url)
+            logger.info("User %s custom merge done", uid)
+        except GenerationError as exc:
+            logger.error("User %s custom merge failed: %s", uid, exc)
+            await db.fail_generation(gen_id)
+            await db.refund_credit(uid, credit_type)
+            await status_msg.edit_text(
+                "Что-то пошло не так. Кредит не списан — попробуй ещё раз.",
+                reply_markup=after_custom_kb(),
+            )
+            return
+
+        was_free = (credit_type == "free")
+        if was_free:
+            watermarked = apply_watermark(result_bytes)
+            result_msg = await message.answer_photo(BufferedInputFile(watermarked, filename="merge.jpg"))
+            await status_msg.delete()
+            try:
+                path = await storage.upload_clean_photo(uid, result_bytes)
+                await db.save_pending_unlock(uid, path)
+                await message.answer(
+                    "Нравится образ? ✨\n\nЭто пробная версия с водяным знаком.\n"
+                    "Купи любой пакет — и получишь фото <b>без водяного знака</b> автоматически.\n\n"
+                    "<i>Фото хранится 24 часа.</i>",
+                    parse_mode="HTML",
+                    reply_markup=paywall_kb(),
+                )
+            except Exception:
+                logger.exception("User %s custom merge storage upload failed", uid)
+                await message.answer_photo(
+                    BufferedInputFile(result_bytes, filename="merge.jpg"),
+                    reply_markup=after_custom_kb(),
+                )
+        else:
+            result_msg = await message.answer_photo(
+                BufferedInputFile(result_bytes, filename="merge.jpg"),
+                reply_markup=after_custom_kb(),
+            )
+            await status_msg.delete()
+
+        await db.complete_generation(gen_id, [result_msg.photo[-1].file_id], was_free)
+        await state.update_data(prompt=prompt, bg_url=bg_url)
+        return
+
+    # ── First photo: upload and wait for second ───────────────────────────────
+    user = await db.get_user(uid)
+    if not user:
+        return
+    total = (user["paid_credits"] or 0) + (user["bonus_credits"] or 0) + (user["free_credits"] or 0)
+    if total < 1:
+        await state.clear()
+        await message.answer("У тебя закончились кредиты. Пополни баланс.", reply_markup=credits_empty_kb())
+        await db.mark_paywall_shown(uid)
+        return
+
+    photo_bytes = await _get_photo_bytes(message, bot)
+    if not photo_bytes:
+        return
+    try:
+        face_url1 = await upload_photo(photo_bytes)
+    except GenerationError as exc:
+        await message.answer(f"Ошибка загрузки первого фото: {exc}. Попробуй ещё раз.", reply_markup=cancel_kb())
+        return
+    await state.update_data(face_url1=face_url1, merge_group_id=message.media_group_id)
+
 
 async def _get_photo_bytes(message: Message, bot: Bot) -> bytes | None:
     try:

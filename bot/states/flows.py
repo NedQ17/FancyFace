@@ -27,8 +27,20 @@ class CustomFlow(StatesGroup):
     step10_restrictions = State()
     step11_era = State()
     step_review = State()
+    step_extra = State()
     waiting_direct_prompt = State()
+    waiting_bg_photo = State()
     waiting_photo = State()
+
+
+class BackgroundFlow(StatesGroup):
+    waiting_bg_photo = State()   # user uploads their own background image
+    waiting_photo = State()      # user uploads their portrait
+
+
+class MergeFlow(StatesGroup):
+    waiting_photo1 = State()
+    waiting_photo2 = State()
 
 
 class AdminFlow(StatesGroup):

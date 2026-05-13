@@ -21,7 +21,7 @@ from bot.data.sessions import DEFAULT_SESSIONS
 from bot.services.subscription import is_bot_admin
 
 from bot.handlers import (
-    start, menu, styles, photo_session, custom_prompt, payment, profile, admin,
+    start, menu, styles, photo_session, custom_prompt, payment, profile, admin, merge, background,
 )
 from bot.middlewares.auth import AuthMiddleware
 
@@ -75,6 +75,8 @@ async def main() -> None:
     dp.include_router(payment.router)
     dp.include_router(profile.router)
     dp.include_router(admin.router)
+    dp.include_router(merge.router)
+    dp.include_router(background.router)
 
     await bot.set_my_commands([
         BotCommand(command="start",   description="Начать / главное меню"),

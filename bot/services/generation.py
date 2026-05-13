@@ -41,11 +41,27 @@ def _build_prompt(prompt: str, scenes: list[str]) -> str:
     return prompt
 
 
-def _run_sync(prompt: str, face_url: str, scenes: list[str]) -> dict:
+def _run_sync(prompt: str, image_urls: list[str], scenes: list[str]) -> dict:
     return fal_client.run(
         FAL_MODEL,
         arguments={
-            "image_urls": [face_url],
+            "image_urls": image_urls,
+            "prompt": _build_prompt(prompt, scenes),
+            "negative_prompt": NEGATIVE_PROMPT,
+            "num_images": 1,
+            "aspect_ratio": "3:4",
+            "resolution": "1K",
+            "output_format": "jpeg",
+            "safety_tolerance": 5,
+        },
+    )
+
+
+def _run_merge_sync(prompt: str, image_urls: list[str], scenes: list[str]) -> dict:
+    return fal_client.run(
+        FAL_MODEL,
+        arguments={
+            "image_urls": image_urls,
             "prompt": _build_prompt(prompt, scenes),
             "negative_prompt": NEGATIVE_PROMPT,
             "num_images": 1,
@@ -75,15 +91,58 @@ async def upload_photo(photo_bytes: bytes) -> str:
     raise GenerationError(f"Ошибка загрузки фото: {last_exc}") from last_exc
 
 
-async def generate_portrait(face_url: str, prompt: str, scenes: list[str] | None = None) -> str:
+async def generate_portrait(
+    face_url: str,
+    prompt: str,
+    scenes: list[str] | None = None,
+    bg_url: str | None = None,
+) -> str:
     """Returns the image URL on the fal.ai CDN."""
     if not scenes:
         scenes = ["standing confidently, looking at camera"]
+    image_urls = [face_url] if not bg_url else [face_url, bg_url]
     loop = asyncio.get_running_loop()
     try:
         result = await asyncio.wait_for(
-            loop.run_in_executor(_executor, lambda: _run_sync(prompt, face_url, scenes)),
+            loop.run_in_executor(_executor, lambda: _run_sync(prompt, image_urls, scenes)),
             timeout=120.0,
+        )
+    except asyncio.TimeoutError:
+        raise GenerationError("Превышено время ожидания генерации")
+    except Exception as e:
+        raise GenerationError(f"Ошибка генерации: {e}") from e
+
+    try:
+        return result["images"][0]["url"]
+    except (KeyError, IndexError, TypeError) as e:
+        raise GenerationError(f"Неожиданный ответ от сервиса генерации: {result}") from e
+
+
+MERGE_SCENES = [
+    "two people standing side by side, both looking at camera",
+    "two people posing together, facing camera",
+    "couple standing close together in the scene",
+]
+
+
+async def generate_merge_portrait(
+    face_url1: str,
+    face_url2: str,
+    prompt: str,
+    bg_url: str | None = None,
+) -> str:
+    """Generates a portrait with two people. Optionally places them on a custom background."""
+    image_urls = [face_url1, face_url2]
+    if bg_url:
+        image_urls.append(bg_url)
+    loop = asyncio.get_running_loop()
+    try:
+        result = await asyncio.wait_for(
+            loop.run_in_executor(
+                _executor,
+                lambda: _run_merge_sync(prompt, image_urls, MERGE_SCENES),
+            ),
+            timeout=180.0,
         )
     except asyncio.TimeoutError:
         raise GenerationError("Превышено время ожидания генерации")
