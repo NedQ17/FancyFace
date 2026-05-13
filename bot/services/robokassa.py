@@ -6,6 +6,7 @@ from bot.config import (
     ROBOKASSA_PASSWORD1, ROBOKASSA_PASSWORD2,
     ROBOKASSA_TEST_PASSWORD1, ROBOKASSA_TEST_PASSWORD2,
     ROBOKASSA_IS_TEST,
+    ROBOKASSA_RESULT_URL,
 )
 
 # В тестовом режиме используются отдельные тестовые пароли (см. Технические настройки Robokassa)
@@ -36,6 +37,8 @@ def build_payment_url(payment_id: int, amount_rub: float, description: str, user
         "Shp_uid": shp_uid,
         "Culture": "ru",
     }
+    if ROBOKASSA_RESULT_URL:
+        params["ResultUrl"] = ROBOKASSA_RESULT_URL
     if ROBOKASSA_IS_TEST:
         params["IsTest"] = "1"
 

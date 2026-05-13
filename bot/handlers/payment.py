@@ -87,7 +87,7 @@ async def package_selected(callback: CallbackQuery) -> None:
 
     kb = InlineKeyboardBuilder()
     kb.button(text=f"Оплатить {pkg['price_rub']} ₽", url=url)
-    kb.button(text="← Назад к тарифам", callback_data="pay:back")
+    kb.button(text="← Назад к пакетам", callback_data="pay:back")
     kb.adjust(1)
 
     try:
