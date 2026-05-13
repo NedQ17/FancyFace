@@ -16,7 +16,10 @@ async def robokassa_result(request: web.Request) -> web.Response:
     bot: Bot = request.app["bot"]
 
     try:
-        data = await request.post()
+        if request.method == "POST":
+            data = await request.post()
+        else:
+            data = request.query
         out_sum = data.get("OutSum", "")
         inv_id = data.get("InvId", "")
         signature = data.get("SignatureValue", "")
@@ -82,5 +85,6 @@ async def robokassa_result(request: web.Request) -> web.Response:
 def create_app(bot: Bot) -> web.Application:
     app = web.Application()
     app["bot"] = bot
+    app.router.add_get("/robokassa/result", robokassa_result)
     app.router.add_post("/robokassa/result", robokassa_result)
     return app
