@@ -438,15 +438,19 @@ async def create_payment(
 
 
 async def complete_payment(payment_id: int, telegram_payment_id: str) -> int:
-    """Marks payment complete, credits paid credits, converts trial free_credits to bonus."""
+    """Marks payment complete, credits paid credits, converts trial free_credits to bonus.
+    Returns 0 if already completed (idempotent)."""
     pool = get_pool()
     async with pool.acquire() as conn:
         async with conn.transaction():
             row = await conn.fetchrow(
                 """UPDATE payments SET status='completed', telegram_payment_id=$2
-                   WHERE id=$1 RETURNING credits, user_id""",
+                   WHERE id=$1 AND status='pending'
+                   RETURNING credits, user_id""",
                 payment_id, telegram_payment_id,
             )
+            if not row:
+                return 0
             await conn.execute(
                 """UPDATE users
                    SET paid_credits  = paid_credits + $2,

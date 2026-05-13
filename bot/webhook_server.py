@@ -43,6 +43,10 @@ async def robokassa_result(request: web.Request) -> web.Response:
         logger.exception("Payment crediting failed InvId=%s", inv_id)
         return web.Response(status=500)
 
+    if credits == 0:
+        logger.info("Robokassa duplicate callback ignored InvId=%s", inv_id)
+        return web.Response(text=f"OK{inv_id}")
+
     try:
         await bot.send_message(
             uid,
