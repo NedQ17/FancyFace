@@ -491,8 +491,9 @@ async def admin_style_prompt_start(callback: CallbackQuery, state: FSMContext) -
     await state.set_state(AdminFlow.editing_style_prompt)
     await state.update_data(editing_style_id=style_id)
     current_prompt = style.get("prompt") or "(пусто)"
+    preview = current_prompt[:500] + ("…" if len(current_prompt) > 500 else "")
     await callback.message.edit_text(
-        f"<b>Текущий промпт:</b>\n\n<i>{current_prompt}</i>\n\n"
+        f"<b>Текущий промпт:</b>\n\n<i>{preview}</i>\n\n"
         "Введи новый промпт (на английском):",
         parse_mode="HTML",
         reply_markup=admin_cancel_kb(),
@@ -503,7 +504,11 @@ async def admin_style_prompt_start(callback: CallbackQuery, state: FSMContext) -
 @router.message(AdminFlow.editing_style_prompt, F.text)
 async def admin_style_prompt_save(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
-    style_id = data["editing_style_id"]
+    style_id = data.get("editing_style_id")
+    if not style_id:
+        await state.clear()
+        await message.answer("Сессия устарела, начни редактирование заново.")
+        return
     new_prompt = message.text.strip()
     await db.update_style_prompt(style_id, new_prompt)
     await state.clear()
