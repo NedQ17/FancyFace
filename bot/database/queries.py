@@ -308,7 +308,9 @@ async def update_style_prompt(style_id: int, prompt: str) -> None:
 async def delete_style(style_id: int) -> None:
     pool = get_pool()
     async with pool.acquire() as conn:
-        await conn.execute("DELETE FROM styles WHERE id=$1", style_id)
+        async with conn.transaction():
+            await conn.execute("UPDATE generations SET style_id=NULL WHERE style_id=$1", style_id)
+            await conn.execute("DELETE FROM styles WHERE id=$1", style_id)
 
 
 async def ensure_default_styles(default_styles: list[dict]) -> None:
