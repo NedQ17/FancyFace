@@ -75,9 +75,14 @@ async def bg_photo_received(message: Message, state: FSMContext, bot: Bot) -> No
     await state.set_state(BackgroundFlow.waiting_custom_prompt)
     await message.answer(
         "Фото фона принято! ✅\n\n"
-        "Хочешь добавить пожелания к образу?\n\n"
-        "Например: <i>красное платье</i>, <i>улыбка</i>, <i>деловой стиль</i>\n\n"
-        "Напиши или нажми «Пропустить».",
+        "Бот поместит тебя в эту сцену. Если хочешь — уточни детали образа.\n\n"
+        "<b>Например:</b>\n"
+        "• не смотрит в камеру\n"
+        "• улыбается\n"
+        "• держит кофе / букет / телефон\n"
+        "• красное платье\n"
+        "• сидит / стоит\n\n"
+        "Напиши пожелание или нажми «Пропустить».",
         parse_mode="HTML",
         reply_markup=bg_skip_prompt_kb(),
     )
@@ -137,7 +142,7 @@ async def bg_portrait_received(message: Message, state: FSMContext, bot: Bot) ->
 
     try:
         portrait_url = await upload_photo(photo_bytes)
-        result_url = await generate_portrait(portrait_url, prompt, bg_url=bg_url)
+        result_url = await generate_portrait(portrait_url, prompt, bg_url=bg_url, user_id=uid)
         result_bytes = await download_image(result_url)
         logger.info("User %s bg done", uid)
     except GenerationError as exc:
@@ -200,6 +205,7 @@ async def _handle_media_group(message: Message, state: FSMContext, bot: Bot) -> 
                 face_url1, face_url2,
                 prompt,
                 bg_url=bg_url,
+                user_id=uid,
             )
             result_bytes = await download_image(result_url)
             logger.info("User %s bg merge done", uid)

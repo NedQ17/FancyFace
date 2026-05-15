@@ -779,7 +779,7 @@ async def custom_photo_received(message: Message, state: FSMContext, bot: Bot) -
     try:
         face_url = await upload_photo(photo_bytes)
         logger.info("User %s photo uploaded", uid)
-        result_url = await generate_portrait(face_url, prompt, bg_url=bg_url)
+        result_url = await generate_portrait(face_url, prompt, bg_url=bg_url, user_id=uid)
         logger.info("User %s generation done, downloading result", uid)
         result_bytes = await download_image(result_url)
         logger.info("User %s result downloaded (%d bytes)", uid, len(result_bytes))
@@ -876,7 +876,7 @@ async def _handle_media_group_custom(message: Message, state: FSMContext, bot: B
         gen_id = await db.create_generation(user_id=uid, gen_type="custom_merge", prompt=prompt)
 
         try:
-            result_url = await generate_merge_portrait(face_url1, face_url2, prompt, bg_url=bg_url)
+            result_url = await generate_merge_portrait(face_url1, face_url2, prompt, bg_url=bg_url, user_id=uid)
             result_bytes = await download_image(result_url)
             logger.info("User %s custom merge done", uid)
         except GenerationError as exc:

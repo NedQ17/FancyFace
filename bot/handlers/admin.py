@@ -688,7 +688,7 @@ async def admin_playground_photo(message: Message, state: FSMContext, bot: Bot) 
 
     try:
         face_url = await upload_photo(photo_bytes)
-        result_url = await generate_portrait(face_url, prompt)
+        result_url = await generate_portrait(face_url, prompt, user_id=message.from_user.id)
         result_bytes = await download_image(result_url)
     except GenerationError as exc:
         await status_msg.edit_text(f"Ошибка генерации: {exc}")

@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import asyncio
 import concurrent.futures
+import functools
 import io
+import logging
 import math
 import os
 import random
@@ -13,6 +15,8 @@ import httpx
 from bot.config import FAL_KEY
 
 os.environ["FAL_KEY"] = FAL_KEY
+
+logger = logging.getLogger(__name__)
 
 _executor = concurrent.futures.ThreadPoolExecutor(max_workers=200)
 
@@ -34,18 +38,18 @@ def _upload_sync(data: bytes, content_type: str = "image/jpeg") -> str:
     return fal_client.upload(data, content_type)
 
 
-def _build_prompt(prompt: str, scenes: list[str]) -> str:
+def _build_prompt(prompt: str, scenes: tuple[str, ...]) -> str:
     if scenes:
         scene = random.choice(scenes)
         return f"{prompt}. Scene: {scene}."
     return prompt
 
 
-def _run_sync(prompt: str, image_urls: list[str], scenes: list[str]) -> dict:
+def _run_sync(prompt: str, image_urls: tuple[str, ...], scenes: tuple[str, ...]) -> dict:
     return fal_client.run(
         FAL_MODEL,
         arguments={
-            "image_urls": image_urls,
+            "image_urls": list(image_urls),
             "prompt": _build_prompt(prompt, scenes),
             "negative_prompt": NEGATIVE_PROMPT,
             "num_images": 1,
@@ -57,11 +61,11 @@ def _run_sync(prompt: str, image_urls: list[str], scenes: list[str]) -> dict:
     )
 
 
-def _run_merge_sync(prompt: str, image_urls: list[str], scenes: list[str]) -> dict:
+def _run_merge_sync(prompt: str, image_urls: tuple[str, ...], scenes: tuple[str, ...]) -> dict:
     return fal_client.run(
         FAL_MODEL,
         arguments={
-            "image_urls": image_urls,
+            "image_urls": list(image_urls),
             "prompt": _build_prompt(prompt, scenes),
             "negative_prompt": NEGATIVE_PROMPT,
             "num_images": 1,
@@ -81,7 +85,7 @@ async def upload_photo(photo_bytes: bytes) -> str:
             await asyncio.sleep(2 ** attempt)
         try:
             return await asyncio.wait_for(
-                loop.run_in_executor(_executor, lambda: _upload_sync(photo_bytes)),
+                loop.run_in_executor(_executor, functools.partial(_upload_sync, photo_bytes)),
                 timeout=60.0,
             )
         except asyncio.TimeoutError:
@@ -96,15 +100,19 @@ async def generate_portrait(
     prompt: str,
     scenes: list[str] | None = None,
     bg_url: str | None = None,
+    user_id: int | None = None,
 ) -> str:
     """Returns the image URL on the fal.ai CDN."""
-    if not scenes:
-        scenes = ["standing confidently, looking at camera"]
-    image_urls = [face_url] if not bg_url else [face_url, bg_url]
+    scenes_tuple: tuple[str, ...] = tuple(scenes) if scenes else ("standing confidently, looking at camera",)
+    image_urls: tuple[str, ...] = (face_url,) if not bg_url else (face_url, bg_url)
+    logger.info("generate_portrait user=%s image_urls=%s", user_id, image_urls)
     loop = asyncio.get_running_loop()
     try:
         result = await asyncio.wait_for(
-            loop.run_in_executor(_executor, lambda: _run_sync(prompt, image_urls, scenes)),
+            loop.run_in_executor(
+                _executor,
+                functools.partial(_run_sync, prompt, image_urls, scenes_tuple),
+            ),
             timeout=120.0,
         )
     except asyncio.TimeoutError:
@@ -130,17 +138,17 @@ async def generate_merge_portrait(
     face_url2: str,
     prompt: str,
     bg_url: str | None = None,
+    user_id: int | None = None,
 ) -> str:
     """Generates a portrait with two people. Optionally places them on a custom background."""
-    image_urls = [face_url1, face_url2]
-    if bg_url:
-        image_urls.append(bg_url)
+    image_urls: tuple[str, ...] = (face_url1, face_url2) if not bg_url else (face_url1, face_url2, bg_url)
+    logger.info("generate_merge_portrait user=%s image_urls=%s", user_id, image_urls)
     loop = asyncio.get_running_loop()
     try:
         result = await asyncio.wait_for(
             loop.run_in_executor(
                 _executor,
-                lambda: _run_merge_sync(prompt, image_urls, MERGE_SCENES),
+                functools.partial(_run_merge_sync, prompt, image_urls, tuple(MERGE_SCENES)),
             ),
             timeout=180.0,
         )

@@ -194,7 +194,7 @@ async def merge_photo2_received(message: Message, state: FSMContext, bot: Bot) -
     )
 
     try:
-        result_url = await generate_merge_portrait(face_url1, face_url2, style["prompt"])
+        result_url = await generate_merge_portrait(face_url1, face_url2, style["prompt"], user_id=uid)
         logger.info("User %s merge generation done", uid)
         result_bytes = await download_image(result_url)
     except GenerationError as exc:

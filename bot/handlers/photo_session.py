@@ -154,7 +154,7 @@ async def session_photo_received(message: Message, state: FSMContext, bot: Bot) 
             used_free = True
         try:
             logger.info("User %s generating photo %s/%s session_id=%s", uid, i, len(prompts), session_id)
-            result_url = await generate_portrait(face_url, prompt)
+            result_url = await generate_portrait(face_url, prompt, user_id=uid)
             logger.info("User %s photo %s/%s done, downloading", uid, i, len(prompts))
         except GenerationError:
             await db.refund_credit(uid, credit_type)

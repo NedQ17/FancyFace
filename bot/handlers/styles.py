@@ -79,10 +79,15 @@ async def noop(callback: CallbackQuery) -> None:
 
 
 ADDITION_QUESTION = (
-    "Хочешь добавить что-то конкретное к образу?\n\n"
-    "Например: <i>красное платье</i>, <i>букет цветов в руках</i>, <i>чёрные очки</i>\n\n"
+    "Бот создаст фото в выбранном стиле. Если хочешь — можешь уточнить детали образа.\n\n"
+    "<b>Например:</b>\n"
+    "• не смотрит в камеру\n"
+    "• улыбается\n"
+    "• держит кофе / букет / телефон\n"
+    "• красное платье\n"
+    "• сидит на скамейке\n\n"
     "Или отправь <b>фото фона</b> — место или сцену, куда хочешь попасть.\n\n"
-    "Напиши, отправь фото, или нажми «Пропустить»."
+    "Напиши пожелание, отправь фото фона, или нажми «Пропустить»."
 )
 
 
@@ -207,7 +212,7 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
     try:
         face_url = await upload_photo(photo_bytes)
         logger.info("User %s photo uploaded", uid)
-        result_url = await generate_portrait(face_url, prompt, style.get("scenes") or [], bg_url=bg_url)
+        result_url = await generate_portrait(face_url, prompt, style.get("scenes") or [], bg_url=bg_url, user_id=uid)
         logger.info("User %s generation done, downloading result", uid)
         result_bytes = await download_image(result_url)
         logger.info("User %s result downloaded (%d bytes)", uid, len(result_bytes))
@@ -315,7 +320,7 @@ async def _handle_media_group_photo(message: Message, state: FSMContext, bot: Bo
 
         bg_url = data.get("bg_url")
         try:
-            result_url = await generate_merge_portrait(face_url1, face_url2, prompt, bg_url=bg_url)
+            result_url = await generate_merge_portrait(face_url1, face_url2, prompt, bg_url=bg_url, user_id=uid)
             result_bytes = await download_image(result_url)
             logger.info("User %s merge done style_id=%s", uid, style_id)
         except GenerationError as exc:
