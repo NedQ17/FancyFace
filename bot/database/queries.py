@@ -57,18 +57,18 @@ async def consume_credit(user_id: int) -> str:
                 "SELECT paid_credits, bonus_credits, free_credits FROM users WHERE user_id=$1 FOR UPDATE",
                 user_id,
             )
-            if row["paid_credits"] >= 1:
-                await conn.execute(
-                    "UPDATE users SET paid_credits = paid_credits - 1 WHERE user_id=$1",
-                    user_id,
-                )
-                return "paid"
             if row["bonus_credits"] >= 1:
                 await conn.execute(
                     "UPDATE users SET bonus_credits = bonus_credits - 1 WHERE user_id=$1",
                     user_id,
                 )
                 return "bonus"
+            if row["paid_credits"] >= 1:
+                await conn.execute(
+                    "UPDATE users SET paid_credits = paid_credits - 1 WHERE user_id=$1",
+                    user_id,
+                )
+                return "paid"
             if row["free_credits"] >= 1:
                 await conn.execute(
                     "UPDATE users SET free_credits = free_credits - 1 WHERE user_id=$1",
