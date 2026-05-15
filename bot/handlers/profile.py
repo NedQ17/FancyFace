@@ -66,7 +66,7 @@ async def show_referral(callback: CallbackQuery) -> None:
 
     text = (
         f"👥 <b>Реферальная программа</b>\n\n"
-        f"Приглашай друзей — оба получаете по <b>{REFERRAL_CREDITS} кредита</b>.\n\n"
+        f"Приглашай друзей — оба получаете по <b>{REFERRAL_CREDITS} кредиту</b>.\n\n"
         f"Твоих рефералов: <b>{ref_count}</b>\n\n"
         f"Твоя ссылка:\n<code>{ref_link}</code>\n\n"
         f"Готовый текст для пересылки:\n<i>{share_text}</i>"

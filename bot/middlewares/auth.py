@@ -10,7 +10,7 @@ from bot.services.subscription import is_subscribed
 
 SUBSCRIBE_TEXT = (
     "Для использования бота нужно подписаться на наш канал.\n\n"
-    f"🎁 После подписки ты получишь <b>{FREE_CREDITS_FOR_SUBSCRIPTION} бесплатные генерации</b>!"
+    f"🎁 После подписки ты получишь <b>{FREE_CREDITS_FOR_SUBSCRIPTION} бесплатную генерацию</b>!"
 )
 
 RESUBSCRIBE_TEXT = (
