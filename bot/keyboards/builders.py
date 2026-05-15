@@ -368,6 +368,14 @@ def style_addition_kb() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 
+def bg_skip_prompt_kb() -> InlineKeyboardMarkup:
+    builder = InlineKeyboardBuilder()
+    builder.button(text="Пропустить →", callback_data="bg:skip_prompt")
+    builder.button(text="✖️ Отмена", callback_data="menu:back")
+    builder.adjust(1)
+    return builder.as_markup()
+
+
 def back_to_menu_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="🏠 Главное меню", callback_data="menu:back")

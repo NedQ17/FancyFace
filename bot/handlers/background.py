@@ -8,7 +8,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import BufferedInputFile, CallbackQuery, Message
 
 from bot import database as db
-from bot.keyboards.builders import after_bg_kb, paywall_kb, credits_empty_kb, cancel_kb
+from bot.keyboards.builders import after_bg_kb, paywall_kb, credits_empty_kb, cancel_kb, bg_skip_prompt_kb
 from bot.utils import pending_paywall
 from bot.services.generation import (
     generate_portrait, generate_merge_portrait, upload_photo, download_image,
@@ -21,6 +21,12 @@ logger = logging.getLogger(__name__)
 router = Router()
 
 _media_group_locks: defaultdict[int, asyncio.Lock] = defaultdict(asyncio.Lock)
+
+_BASE_PROMPT = (
+    "candid photo shot on iPhone, person naturally placed in the scene, "
+    "sharp background, no bokeh, no depth of field, no background blur, "
+    "everything in focus, natural colors, casual snapshot, no studio lighting, no AI look"
+)
 
 _PORTRAIT_TIPS = (
     "Теперь отправь своё фото.\n\n"
@@ -65,9 +71,31 @@ async def bg_photo_received(message: Message, state: FSMContext, bot: Bot) -> No
         return
 
     await status_msg.delete()
-    await state.set_state(BackgroundFlow.waiting_photo)
     await state.update_data(bg_url=bg_url)
+    await state.set_state(BackgroundFlow.waiting_custom_prompt)
+    await message.answer(
+        "Фото фона принято! ✅\n\n"
+        "Хочешь добавить пожелания к образу?\n\n"
+        "Например: <i>красное платье</i>, <i>улыбка</i>, <i>деловой стиль</i>\n\n"
+        "Напиши или нажми «Пропустить».",
+        parse_mode="HTML",
+        reply_markup=bg_skip_prompt_kb(),
+    )
+
+
+@router.message(BackgroundFlow.waiting_custom_prompt, F.text)
+async def bg_custom_prompt_received(message: Message, state: FSMContext) -> None:
+    await state.update_data(custom_prompt=message.text.strip())
+    await state.set_state(BackgroundFlow.waiting_photo)
     await message.answer(_PORTRAIT_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
+
+
+@router.callback_query(BackgroundFlow.waiting_custom_prompt, F.data == "bg:skip_prompt")
+async def bg_skip_prompt(callback: CallbackQuery, state: FSMContext) -> None:
+    await state.update_data(custom_prompt=None)
+    await state.set_state(BackgroundFlow.waiting_photo)
+    await callback.message.edit_text(_PORTRAIT_TIPS, parse_mode="HTML", reply_markup=cancel_kb())
+    await callback.answer()
 
 
 @router.message(BackgroundFlow.waiting_photo, F.photo | F.document)
@@ -98,13 +126,18 @@ async def bg_portrait_received(message: Message, state: FSMContext, bot: Bot) ->
         await message.answer("Не удалось прочитать фото. Попробуй ещё раз.", reply_markup=cancel_kb())
         return
 
+    custom_prompt = data.get("custom_prompt")
+    prompt = _BASE_PROMPT
+    if custom_prompt:
+        prompt = f"{prompt}. Additional user request: {custom_prompt}."
+
     status_msg = await message.answer("Генерирую твой образ, скоро будет готово... ⏳")
     credit_type = await db.consume_credit(uid)
     gen_id = await db.create_generation(user_id=uid, gen_type="background", prompt=bg_url)
 
     try:
         portrait_url = await upload_photo(photo_bytes)
-        result_url = await generate_portrait(portrait_url, "candid photo shot on iPhone, person naturally placed in the scene, sharp background, no bokeh, no depth of field, no background blur, everything in focus, natural colors, casual snapshot, no studio lighting, no AI look", bg_url=bg_url)
+        result_url = await generate_portrait(portrait_url, prompt, bg_url=bg_url)
         result_bytes = await download_image(result_url)
         logger.info("User %s bg done", uid)
     except GenerationError as exc:
@@ -154,13 +187,18 @@ async def _handle_media_group(message: Message, state: FSMContext, bot: Bot) -> 
             await status_msg.edit_text(f"Ошибка загрузки: {exc}. Попробуй ещё раз.")
             return
 
+        custom_prompt = data.get("custom_prompt")
+        prompt = _BASE_PROMPT
+        if custom_prompt:
+            prompt = f"{prompt}. Additional user request: {custom_prompt}."
+
         credit_type = await db.consume_credit(uid)
         gen_id = await db.create_generation(user_id=uid, gen_type="background_merge", prompt=bg_url)
 
         try:
             result_url = await generate_merge_portrait(
                 face_url1, face_url2,
-                "candid photo shot on iPhone, person naturally placed in the scene, sharp background, no bokeh, no depth of field, no background blur, everything in focus, natural colors, casual snapshot, no studio lighting, no AI look",
+                prompt,
                 bg_url=bg_url,
             )
             result_bytes = await download_image(result_url)

@@ -34,8 +34,9 @@ class CustomFlow(StatesGroup):
 
 
 class BackgroundFlow(StatesGroup):
-    waiting_bg_photo = State()   # user uploads their own background image
-    waiting_photo = State()      # user uploads their portrait
+    waiting_bg_photo = State()      # user uploads their own background image
+    waiting_custom_prompt = State() # optional text prompt before portrait
+    waiting_photo = State()         # user uploads their portrait
 
 
 class MergeFlow(StatesGroup):
