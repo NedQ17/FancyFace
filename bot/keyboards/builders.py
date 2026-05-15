@@ -13,8 +13,9 @@ def main_menu_kb() -> InlineKeyboardMarkup:
     builder.button(text="💰 Мой баланс",     callback_data="menu:profile")
     builder.button(text="💳 Пополнить",      callback_data="menu:topup")
     builder.button(text="ℹ️ Информация",     callback_data="menu:info")
-    builder.button(text="📢 Идеи", url=CHANNEL_URL)
-    builder.adjust(2, 1, 2, 2)
+    builder.button(text="🆘 Поддержка",      url="https://t.me/avocado_tech")
+    builder.button(text="📢 Идеи",           url=CHANNEL_URL)
+    builder.adjust(2, 1, 2, 2, 1)
     return builder.as_markup()
 
 
