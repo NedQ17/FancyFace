@@ -86,8 +86,7 @@ ADDITION_QUESTION = (
     "• держит кофе / букет / телефон\n"
     "• красное платье\n"
     "• сидит на скамейке\n\n"
-    "Или отправь <b>фото фона</b> — место или сцену, куда хочешь попасть.\n\n"
-    "Напиши пожелание, отправь фото фона, или нажми «Пропустить»."
+    "Напиши пожелание или нажми «Пропустить»."
 )
 
 
@@ -124,27 +123,6 @@ async def receive_addition(message: Message, state: FSMContext) -> None:
     data = await state.get_data()
     await message.answer(PHOTO_TIPS, parse_mode="HTML", reply_markup=photo_request_kb(data["style_id"]))
 
-
-@router.message(StyleFlow.waiting_custom_addition, F.photo | F.document)
-async def receive_addition_bg_photo(message: Message, state: FSMContext, bot: Bot) -> None:
-    photo_bytes = await _get_photo_bytes(message, bot)
-    if not photo_bytes:
-        await message.answer("Не удалось прочитать фото. Попробуй ещё раз.")
-        return
-    status_msg = await message.answer("Загружаю фото фона... ⏳")
-    try:
-        bg_url = await upload_photo(photo_bytes)
-    except GenerationError as exc:
-        await status_msg.edit_text(f"Ошибка загрузки: {exc}. Попробуй ещё раз.")
-        return
-    await status_msg.delete()
-    await state.update_data(bg_url=bg_url)
-    await state.set_state(StyleFlow.waiting_photo)
-    data = await state.get_data()
-    await message.answer(
-        "Фото фона принято! Теперь отправь своё фото.",
-        reply_markup=photo_request_kb(data["style_id"]),
-    )
 
 
 @router.callback_query(F.data.startswith("style:retry:"))
@@ -207,12 +185,11 @@ async def style_photo_received(message: Message, state: FSMContext, bot: Bot) ->
         prompt = f"{prompt}. Additional user request: {custom_addition}."
 
     uid = message.from_user.id
-    bg_url = data.get("bg_url")
     logger.info("User %s generation started style_id=%s", uid, style_id)
     try:
         face_url = await upload_photo(photo_bytes)
         logger.info("User %s photo uploaded", uid)
-        result_url = await generate_portrait(face_url, prompt, style.get("scenes") or [], bg_url=bg_url, user_id=uid)
+        result_url = await generate_portrait(face_url, prompt, style.get("scenes") or [], user_id=uid)
         logger.info("User %s generation done, downloading result", uid)
         result_bytes = await download_image(result_url)
         logger.info("User %s result downloaded (%d bytes)", uid, len(result_bytes))
@@ -318,9 +295,8 @@ async def _handle_media_group_photo(message: Message, state: FSMContext, bot: Bo
         credit_type = await db.consume_credit(uid)
         gen_id = await db.create_generation(user_id=uid, gen_type="merge", prompt=style["prompt"], style_id=style_id)
 
-        bg_url = data.get("bg_url")
         try:
-            result_url = await generate_merge_portrait(face_url1, face_url2, prompt, bg_url=bg_url, user_id=uid)
+            result_url = await generate_merge_portrait(face_url1, face_url2, prompt, user_id=uid)
             result_bytes = await download_image(result_url)
             logger.info("User %s merge done style_id=%s", uid, style_id)
         except GenerationError as exc:
