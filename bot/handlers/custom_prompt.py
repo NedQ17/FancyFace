@@ -42,10 +42,9 @@ PHOTO_TIPS = (
 # ─── Mappings ─────────────────────────────────────────────────────────────────
 
 GENDER_MAP = {
-    "female": ("Женщина",        "woman"),
-    "male":   ("Мужчина",        "man"),
-    "pair":   ("👥 Парное фото", ""),
-    "skip":   ("—",              ""),
+    "female": ("Женщина", "woman"),
+    "male":   ("Мужчина", "man"),
+    "skip":   ("—",       ""),
 }
 CATEGORY_MAP = {
     "business":     ("Деловой",          "professional corporate business portrait"),

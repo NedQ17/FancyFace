@@ -115,12 +115,11 @@ def custom_mode_kb() -> InlineKeyboardMarkup:
 
 def custom_gender_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="Женщина",        callback_data="custom:gender:female")
-    builder.button(text="Мужчина",        callback_data="custom:gender:male")
-    builder.button(text="👥 Парное фото", callback_data="custom:gender:pair")
-    builder.button(text="Пропустить",     callback_data="custom:gender:skip")
-    builder.button(text="← Назад",        callback_data="custom:back")
-    builder.adjust(2, 2, 1)
+    builder.button(text="Женщина",    callback_data="custom:gender:female")
+    builder.button(text="Мужчина",   callback_data="custom:gender:male")
+    builder.button(text="Пропустить", callback_data="custom:gender:skip")
+    builder.button(text="← Назад",   callback_data="custom:back")
+    builder.adjust(2, 1, 1)
     return builder.as_markup()
 
 
@@ -354,9 +353,7 @@ def cancel_kb() -> InlineKeyboardMarkup:
 
 def photo_request_kb(style_id: int) -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
-    builder.button(text="👥 Парное фото",  callback_data=f"style:pair:{style_id}")
-    builder.button(text="✖️ Отмена",       callback_data="menu:back")
-    builder.adjust(1)
+    builder.button(text="✖️ Отмена", callback_data="menu:back")
     return builder.as_markup()
 
 
