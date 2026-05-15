@@ -18,11 +18,14 @@ RESUBSCRIBE_TEXT = (
 )
 
 
+_EXEMPT_CALLBACKS = {"subscribe:check", "menu:info"}
+
+
 def _is_exempt(event: TelegramObject) -> bool:
     if isinstance(event, Message) and event.text:
         return event.text.startswith("/start")
     if isinstance(event, CallbackQuery):
-        return event.data == "subscribe:check"
+        return event.data in _EXEMPT_CALLBACKS
     return False
 
 
