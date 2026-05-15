@@ -332,6 +332,7 @@ def subscribe_kb() -> InlineKeyboardMarkup:
     builder = InlineKeyboardBuilder()
     builder.button(text="📢 Подписаться на канал", url=CHANNEL_URL)
     builder.button(text="✅ Я подписался",          callback_data="subscribe:check")
+    builder.button(text="ℹ️ Информация",            callback_data="menu:info")
     builder.adjust(1)
     return builder.as_markup()
 
