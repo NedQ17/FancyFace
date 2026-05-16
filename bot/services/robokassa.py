@@ -37,12 +37,18 @@ def _build_receipt(name: str, amount_rub: float) -> str:
     return json.dumps(receipt, ensure_ascii=False, separators=(",", ":"))
 
 
-def build_payment_url(payment_id: int, amount_rub: float, description: str, user_id: int) -> str:
+def build_payment_url(
+    payment_id: int,
+    amount_rub: float,
+    description: str,
+    receipt_name: str,
+    user_id: int,
+) -> str:
     out_sum = f"{amount_rub:.2f}"
     inv_id = str(payment_id)
     shp_uid = str(user_id)
 
-    receipt_json = _build_receipt(description, amount_rub)
+    receipt_json = _build_receipt(receipt_name, amount_rub)
     receipt_encoded = quote(receipt_json)  # URL-encode для подписи (требование Robokassa)
 
     sig_str = f"{ROBOKASSA_LOGIN}:{out_sum}:{inv_id}:{receipt_encoded}:{_pwd1}:Shp_uid={shp_uid}"

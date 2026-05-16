@@ -81,7 +81,8 @@ async def package_selected(callback: CallbackQuery) -> None:
     url = build_payment_url(
         payment_id=payment_id,
         amount_rub=float(pkg["price_rub"]),
-        description=f"Avocado photo bot: {pkg['credits']} генераций",
+        description=f"Avocado AI Studio - {pkg['credits']} photos",
+        receipt_name=f"Генерация AI-фото ({pkg['credits']} шт.)",
         user_id=uid,
     )
 
