@@ -40,6 +40,8 @@ logging.basicConfig(
     ],
 )
 logging.getLogger("aiogram.event").setLevel(logging.WARNING)
+logging.getLogger("aiohttp.access").setLevel(logging.WARNING)
+logging.getLogger("aiohttp.server").setLevel(logging.WARNING)
 logger = logging.getLogger(__name__)
 
 

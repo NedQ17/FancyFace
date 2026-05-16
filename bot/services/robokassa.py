@@ -1,5 +1,6 @@
 import hashlib
-from urllib.parse import urlencode
+import json
+from urllib.parse import urlencode, quote
 
 from bot.config import (
     ROBOKASSA_LOGIN,
@@ -20,12 +21,31 @@ def _md5(s: str) -> str:
     return hashlib.md5(s.encode()).hexdigest().upper()
 
 
+def _build_receipt(name: str, amount_rub: float) -> str:
+    receipt = {
+        "items": [
+            {
+                "name": name[:128],
+                "quantity": 1,
+                "sum": round(amount_rub, 2),
+                "payment_method": "full_payment",
+                "payment_object": "service",
+                "tax": "none",
+            }
+        ]
+    }
+    return json.dumps(receipt, ensure_ascii=False, separators=(",", ":"))
+
+
 def build_payment_url(payment_id: int, amount_rub: float, description: str, user_id: int) -> str:
     out_sum = f"{amount_rub:.2f}"
     inv_id = str(payment_id)
     shp_uid = str(user_id)
 
-    sig_str = f"{ROBOKASSA_LOGIN}:{out_sum}:{inv_id}:{_pwd1}:Shp_uid={shp_uid}"
+    receipt_json = _build_receipt(description, amount_rub)
+    receipt_encoded = quote(receipt_json)  # URL-encode для подписи (требование Robokassa)
+
+    sig_str = f"{ROBOKASSA_LOGIN}:{out_sum}:{inv_id}:{receipt_encoded}:{_pwd1}:Shp_uid={shp_uid}"
     signature = _md5(sig_str)
 
     params: dict = {
@@ -33,6 +53,7 @@ def build_payment_url(payment_id: int, amount_rub: float, description: str, user
         "OutSum": out_sum,
         "InvId": inv_id,
         "Description": description,
+        "Receipt": receipt_json,
         "SignatureValue": signature,
         "Shp_uid": shp_uid,
         "Culture": "ru",
