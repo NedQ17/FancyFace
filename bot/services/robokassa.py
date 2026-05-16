@@ -53,7 +53,7 @@ def build_payment_url(payment_id: int, amount_rub: float, description: str, user
         "OutSum": out_sum,
         "InvId": inv_id,
         "Description": description,
-        "Receipt": receipt_json,
+        "Receipt": receipt_encoded,
         "SignatureValue": signature,
         "Shp_uid": shp_uid,
         "Culture": "ru",
